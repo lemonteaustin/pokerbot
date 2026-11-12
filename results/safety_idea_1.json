@@ -1,0 +1,46 @@
+{
+  "module": "my_bot",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "python": "3.15.2 (v3.15.2:5e58eaad7c5, Oct 25 2026, 14:19:34) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "parallel_decision_timing": false,
+  "passed": false,
+  "checks": [
+    {
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.15/bin/python3",
+        "-m",
+        "unittest",
+        "-q"
+      ],
+      "returncode": 0,
+      "seconds": 2.6777019589790143,
+      "output": "----------------------------------------------------------------------\nRan 60 tests in 1.490s\n\nOK\n"
+    },
+    {
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.15/bin/python3",
+        "stress_test.py",
+        "--bot-module",
+        "my_bot"
+      ],
+      "returncode": 0,
+      "seconds": 0.6150063750101253,
+      "output": "my_bot: 10,000 states, seed 1, 25 scenario groups\nLegal-action checks: 8,374; no-feasible-action fallback checks: 1,626\nCrashes: 0; illegal actions: 0; unsafe fallbacks: 0; over 1 ms: 0\nMedian: 3.750 us; p99: 20.542 us; maximum: 0.056 ms\nTiming is measured wall-clock time, not a guarantee for future calls.\n"
+    },
+    {
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.15/bin/python3",
+        "stress_test.py",
+        "--bot-module",
+        "my_bot",
+        "--states",
+        "100000",
+        "--limit-ms",
+        "0.2"
+      ],
+      "returncode": 1,
+      "seconds": 5.07610645800014,
+      "output": "my_bot: 100,000 states, seed 1, 25 scenario groups\nLegal-action checks: 83,832; no-feasible-action fallback checks: 16,168\nCrashes: 0; illegal actions: 0; unsafe fallbacks: 0; over 0.2 ms: 2\nMedian: 3.542 us; p99: 19.459 us; maximum: 0.325 ms\n  Slow #4701 [three_handed]: 0.325 ms; GC during call: False\n  Slow #33377 [full_table]: 0.229 ms; GC during call: False\nTiming is measured wall-clock time, not a guarantee for future calls.\n"
+    }
+  ]
+}

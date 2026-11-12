@@ -1,0 +1,80 @@
+[
+  {
+    "idea": 1,
+    "name": "Stack-depth play",
+    "kept": true,
+    "baseline": "my_bot_v6",
+    "candidate": "experiments.idea_1",
+    "results": "results/idea_1.json",
+    "timing": "results/timing_idea_1.json",
+    "note": "All score configurations improved. Dedicated benchmark passed; earlier stress timing diagnostics contain scheduler outliers and are retained."
+  },
+  {
+    "idea": 2,
+    "name": "Real hand strength",
+    "kept": false,
+    "baseline": "experiments.idea_1",
+    "candidate": "experiments.idea_2",
+    "results": "results/idea_2.json",
+    "note": "Primary passes; TOUGH/LINEAR regresses by more than 2 SE under both blind schedules. Completely removed from active strategy."
+  },
+  {
+    "idea": 3,
+    "name": "Calling all-ins",
+    "kept": true,
+    "baseline": "experiments.idea_1",
+    "candidate": "experiments.idea_3",
+    "results": "results/idea_3.json",
+    "safety": "results/safety_idea_3.json",
+    "timing": "results/timing_idea_3.json"
+  },
+  {
+    "idea": 4,
+    "name": "Position",
+    "kept": true,
+    "baseline": "experiments.idea_3",
+    "candidate": "experiments.idea_4",
+    "results": "results/idea_4.json",
+    "safety": "results/safety_idea_4.json",
+    "timing": "results/timing_idea_4.json"
+  },
+  {
+    "idea": 5,
+    "name": "Post-flop",
+    "kept": true,
+    "baseline": "experiments.idea_4",
+    "candidate": "experiments.idea_5",
+    "results": "results/idea_5.json",
+    "safety": "results/safety_idea_5.json",
+    "timing": "results/timing_idea_5.json"
+  },
+  {
+    "idea": 6,
+    "name": "ICM pressure",
+    "kept": false,
+    "baseline": "experiments.idea_5",
+    "candidate": "experiments.idea_6",
+    "results": "results/idea_6.json",
+    "note": "Primary gain -0.0482, SE 0.0900; fails >2 SE improvement gate."
+  },
+  {
+    "idea": 7,
+    "name": "End game",
+    "kept": false,
+    "baseline": "experiments.idea_5",
+    "candidate": "experiments.idea_7",
+    "results": "results/idea_7.json",
+    "note": "Primary fails and WEAK/doubling plus MIXED/TOUGH x1.5 regress clearly."
+  },
+  {
+    "idea": 8,
+    "name": "Light opponent reads",
+    "kept": false,
+    "baseline": "experiments.idea_5",
+    "candidate": "experiments.idea_8",
+    "results": "results/idea_8.json",
+    "safety": "results/safety_idea_8_final.json",
+    "timing": "results/timing_idea_8_final.json",
+    "note": "Passed all score gates, but failed required 0.2 ms wall-time validation, including behavior-preserving optimizations. Scheduler outliers observed; CPU timing is not substituted for wall time. Reverted under the safety requirement."
+  }
+]

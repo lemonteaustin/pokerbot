@@ -1,107 +1,102 @@
-# Pokerbot simulator
+# Pokerbot tournament lab
 
-Run from this folder on a Mac with:
+Final bot: `my_bot_v7.py` plus `preflop_equity.py`. The live `my_bot.py` is the
+same source. See [REPORT.md](REPORT.md) for all experiment decisions, the final
+eighteen-row comparison, timing measurements, and flat-payout settings.
 
-```bash
-python3 simulator.py
+Retained improvements: stack depth, priced all-in calls, position, and postflop
+classification. Opponent reads improved scores but failed the strict wall-time
+validation and were removed. Rejected experiments remain reproducible in
+`experiments/`. v6 remains unchanged.
+
+Python standard library only. Eight anonymous seats, 2,000 chips each, 10/20
+initial blinds, a new blind level every 25 hands, and a 200-hand cap. Eliminations
+earn finishing-place points; survivors at the cap share remaining payouts by
+exact ICM.
+
+## Commands
+
+```sh
+python3 simulator.py --tables 3000 --pool MIXED --blinds doubling --payout TOP3
+python3 ab_test.py --tables 10000 --baseline my_bot_v6 --candidate my_bot --workers 8
+python3 generate_preflop_equity.py --samples 20000 --workers 8
+python3 -m unittest -q
+python3 stress_test.py
+# Run only after all simulation/equity workers exit:
+python3 stress_test.py --states 100000 --limit-ms 0.2
+python3 timing_test.py --module my_bot_v7 --label final
+python3 verify_final.py
 ```
 
-That runs 3,000 eight-player sit-and-go tables. The exact command for a
-different number of tables is, for example, `python3 simulator.py --tables 10`.
+Blinds accept `doubling` or `x1.5`. Fractional levels round the small blind to
+the nearest integer; the big blind is twice that amount.
 
-The report shows average finishing place, total and average points, and
-first-place counts and percentages. Points are 50 for first, 30 for second,
-20 for third, and zero otherwise. Tied players split the points for their
-occupied places equally. Tied leaders each count as a first-place finish;
-the report notes when this happens. The table seed defaults to 1; reproduce
-the batch with `python3 simulator.py --tables 3000 --seed 1`. Timing-related
-auto-folds can still cause differences between runs with the same seed.
+| Payout | First through eighth |
+|---|---|
+| TOP3 | 50 / 30 / 20 / 0 / 0 / 0 / 0 / 0 |
+| FLAT | 40 / 30 / 20 / 10 / 0 / 0 / 0 / 0 |
+| LINEAR | 8 / 7 / 6 / 5 / 4 / 3 / 2 / 1 |
 
-`my_bot_v4.py` is the saved blind-stealing strategy; it is not an extra seat.
+Seven opponents are sampled with replacement and seats are shuffled. WEAK favors
+folders, random players, maniacs and calling stations. MIXED samples all twelve
+strategies evenly. TOUGH samples tight-aggressive, positional tight-aggressive,
+push/fold, nit, loose-aggressive and frozen-v6. Legacy opponents are preserved.
+Push/fold ranges are approximations, not a solved multiway Nash equilibrium.
+Every bot gets a fresh instance each table.
 
-Replace `MyBot.get_action` in `my_bot.py`. The state includes hole cards,
-board, pot, stacks, blinds, amount to call, legal actions, and raise bounds.
-For a raise, return `{"action": "raise", "amount": target_total_on_street}`.
-Exceptions, illegal actions, and decisions taking over 1 millisecond are
-auto-folded and reported.
+## Paired experiments
 
-The eight seats are `my_bot`, random, always-call, always-raise, always-fold,
-tight-aggressive, loose-aggressive, and `my_bot_v2`. The last three replace
-the former extra random seats. Additional strategies live in `opponent_bots.py`:
+The A/B command runs matching seeds, seats and opponent draws for all six
+pool/blind combinations. All three payouts rescore those same trajectories,
+producing eighteen result rows. Bot payout configuration stays TOP3 by default;
+`--policy-payout FLAT` explicitly tests a payout-adapted policy separately.
 
-- Tight-aggressive plays 88+, AJ+, and KQ, raises good hands aggressively,
-  and avoids expensive weak calls.
-- Loose-aggressive plays pairs, broadway-high hands, suited hands, and close
-  connectors, raises frequently, and mixes in draws and bluffs postflop.
-- `my_bot_v2` imports the saved strategy unchanged and adapts stack names so
-  it uses its own chips. Editing `my_bot.py` does not change this opponent.
+The standard error is the sample standard deviation of the **paired table point
+differences**, divided by the square root of the number of pairs. Deck and
+opponent random streams are independent. Decision timers are disabled in all
+A/B workers so process contention cannot cause timeout folds.
 
-The new bots use the same 1 ms decision budget as all other seats. The loose
-bot has a seeded random generator separate from deck shuffling.
+Outcomes are cached by source/dependency hashes and seeds. Byte-identical
+archived winners can reuse their own previously completed trajectories; the
+initial v6/live identity check independently executes both modules.
+`my_bot_v6.py` is immutable. See `EXPERIMENT_LOG.md` for the selection protocol
+and `results/` for detailed measurements.
 
-Seats are shuffled independently for each table using the table seed. Blinds
-and the button skip eliminated players; heads-up, the button is the small
-blind and acts first preflop. All-in pots are split by contribution level,
-folded chips remain in the pots, and unmatched bets are returned. Odd chips
-from tied pots go clockwise from the button.
+## Bot interface and engine
 
-Players eliminated on the same hand are ranked by their stacks before that
-hand's blinds: the bigger starting stack finishes higher. Equal starting
-stacks share the average of their occupied places (for example, 7.5 for a tie
-for seventh/eighth). After 200 hands, survivors are ranked by remaining chips,
-with equal stacks likewise sharing places.
+Implement `MyBot.get_action(state)`. Return `fold`, `check`, `call`, or
+`{"action": "raise", "amount": target_total_on_this_street}`.
 
-Run strategy and engine regression checks with
-`python3 -m unittest -v test_my_bot test_simulator`.
+Public state includes cards, board, pot, stacks, blinds, call amount, legal
+actions and bounds; position, remaining/active players, players left to act,
+street/total contributions, starting stacks, last raiser, hand number, payout
+vector, and bounded public preflop action history. Opponent identities and
+private cards are never exposed. Legacy opponent self-names are adapted.
 
-`my_bot.py` uses the saved v3 strategy with blind stealing and faster hand
-classification. Opponent-frequency tracking has been removed. The simulator
-now supplies `hand_number`, `position`, and `folded_to_me`. Positions use the
-players dealt into the current hand, skipping eliminated seats. A prior
-limp, check, or raise prevents `folded_to_me`; it is always false postflop.
+The engine handles side pots, uncalled refunds, short all-in raises and raise
+reopening, live-seat rotation and heads-up button order. Same-hand busts rank
+by starting stacks; equal stacks split occupied places. Cap points use exact
+ICM subset dynamic programming. CLI displayed cap ranks use chip ranks only
+for descriptive purposes.
 
-When folded to in cutoff or button, the bot raises with any pocket pair,
-any ace, or KT/KJ/KQ, suited or offsuit. New steal opens are 3 BB; premiums
-remain 4 BB. Below 12 BB, the expanded steal range uses the existing shove
-sizing. Blind seats are excluded (heads-up therefore adds no steal range).
-Without the position fields, the bot retains its original v3 decisions.
+Ordinary serial simulations enforce the 1 ms wall-clock cutoff; exceptions,
+illegal responses and timeouts fold. Timing is tested separately from the
+parallel statistical experiments.
 
-The decision path has no history scan, I/O, or hand-combination enumeration.
-Its hand evaluator uses fixed-size counters and rank bit masks. The 1 ms
-wall-clock cutoff still applies; OS scheduling can cause occasional timeouts
-even when the strategy itself normally runs far faster than that limit.
+## Equity and safety
 
-With 2-3 players remaining, `my_bot.py` switches to loose-aggressive play:
-it opens pairs, queen-high or better hands, suited hands, and close connectors;
-pressures covered opponents with effective stacks of at most 12 BB; and adds
-postflop draw bets and occasional bluffs. It calls existing large bets/all-ins
-more selectively than it shoves unopened pots. Opponents who already went
-all-in are not treated as targets that can fold. The mode uses a private seeded
-random stream; saved v4 behavior is retained with 4+ players remaining.
+The offline generator writes `preflop_equity.py`: 169 starting hands against
+random, top 10%, 20%, 35% and 50% ranges. Ranges use actual card-combination
+weights, partial boundary classes and blocker removal. Ties count as half a
+win. Bot decisions look up saved values and never sample runouts.
 
-For this mode the state supplies `players_remaining` (everyone dealt into
-the hand, even after folding or going all-in), `active_players` (not folded),
-and `street_contributions`. The player count changes after a hand is settled,
-not when a stack temporarily reaches zero during betting.
+Stress checks cover malformed and ordinary inputs, action membership and
+integer raise bounds. Impossible legal-action sets require a safe fold sentinel
+and are counted separately. Timing reports observed wall time, including
+interruptions and GC; measurements cannot guarantee performance on unknown
+hardware.
 
-## Stress test
-
-`my_bot_v5.py` preserves the pre-hardening strategy. The live `my_bot.py`
-adds bounded input validation and a final legal-action check around it.
-Malformed boards or player collections cannot trigger unbounded scans.
-Recovery prefers check, then fold, then call, then a minimum legal raise.
-If no recognized feasible action exists (including empty legal actions or
-an impossible raise-only range), it returns `fold` as a sentinel: no legal
-response can exist for such an input.
-
-Run `python3 stress_test.py` for 10,000 seeded cases covering 25 scenario
-groups. It checks exceptions, advertised action membership, integer raise
-bounds, and every decision's wall-clock duration against 1 ms. Inputs are
-generated outside the timed region; garbage collection stays enabled. Slow
-cases report whether a GC event occurred during the call. The process exits
-nonzero for any crash, illegal response, unsafe sentinel, or timeout.
-
-Cases with no feasible legal action are counted separately, not presented
-as legal-action successes. A clean timing run establishes an observation,
-not a hard guarantee against future OS or GC delays. To reproduce the saved
-version's original failures: `python3 stress_test.py --bot-module my_bot_v5`.
+The dedicated timing benchmark prepares its cases before timing, keeps GC
+enabled, uses interactive thread QoS on macOS, and reports every call without
+discarding outliers. Engine regression tests disable decision timers; only the
+separate serial safety/timing commands evaluate latency.

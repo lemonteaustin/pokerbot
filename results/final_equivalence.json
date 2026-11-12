@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "identical_action_comparisons": 100000,
+  "identical_table_pairs": 300,
+  "v6_sha256": "22f413df5eca80ed3706aeb664633ea591857ac9bf9f999832a02f42910fed85",
+  "v7_sha256": "4dfa620207534d0f61a8ec6e36e71ec8cb2144747121841ada6d5ed592718cfc",
+  "live_matches_v7": true,
+  "decision_timing_measured": false
+}

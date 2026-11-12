@@ -1,0 +1,18 @@
+{
+  "module": "my_bot",
+  "decisions": 100000,
+  "prepared_cases": 1032,
+  "qos": "macOS interactive QoS, result=0",
+  "gc_enabled": true,
+  "parallel": false,
+  "excluded_samples": 0,
+  "crashes": 0,
+  "illegal": 0,
+  "maximum_ms": 15.400583,
+  "maximum_cpu_ms": 0.254917,
+  "median_us": 9.167,
+  "p99_us": 87.334,
+  "over_0_2_ms": 305,
+  "over_1_ms": 62,
+  "passed": false
+}

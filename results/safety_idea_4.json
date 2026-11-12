@@ -1,0 +1,46 @@
+{
+  "module": "my_bot",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "python": "3.15.2 (v3.15.2:5e58eaad7c5, Oct 25 2026, 14:19:34) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "parallel_decision_timing": false,
+  "passed": true,
+  "checks": [
+    {
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.15/bin/python3",
+        "-m",
+        "unittest",
+        "-q"
+      ],
+      "returncode": 0,
+      "seconds": 0.9616548339836299,
+      "output": "----------------------------------------------------------------------\nRan 60 tests in 0.699s\n\nOK\n"
+    },
+    {
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.15/bin/python3",
+        "stress_test.py",
+        "--bot-module",
+        "my_bot"
+      ],
+      "returncode": 0,
+      "seconds": 0.498347584012663,
+      "output": "my_bot: 10,000 states, seed 1, 25 scenario groups\nLegal-action checks: 8,374; no-feasible-action fallback checks: 1,626\nCrashes: 0; illegal actions: 0; unsafe fallbacks: 0; over 1 ms: 0\nMedian: 3.291 us; p99: 17.083 us; maximum: 0.040 ms\nMaximum thread CPU time: 0.030 ms\nTiming is measured wall-clock time, not a guarantee for future calls.\n"
+    },
+    {
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.15/bin/python3",
+        "timing_test.py",
+        "--module",
+        "my_bot",
+        "--decisions",
+        "100000",
+        "--label",
+        "idea_4"
+      ],
+      "returncode": 0,
+      "seconds": 0.6757109580212273,
+      "output": "{\n  \"module\": \"my_bot\",\n  \"decisions\": 100000,\n  \"prepared_cases\": 1000,\n  \"qos\": \"macOS interactive QoS, result=0\",\n  \"gc_enabled\": true,\n  \"parallel\": false,\n  \"excluded_samples\": 0,\n  \"crashes\": 0,\n  \"illegal\": 0,\n  \"maximum_ms\": 0.054166,\n  \"maximum_cpu_ms\": 0.055166,\n  \"median_us\": 2.667,\n  \"p99_us\": 14.208,\n  \"over_0_2_ms\": 0,\n  \"over_1_ms\": 0,\n  \"passed\": true\n}\n"
+    }
+  ]
+}

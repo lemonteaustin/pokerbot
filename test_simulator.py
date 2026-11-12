@@ -12,7 +12,7 @@ def cards(text):
 
 class TournamentTests(unittest.TestCase):
     def setUp(self):
-        self.table = Tournament(1)
+        self.table = Tournament(1, measure_timing=False)
 
     def prepare_pot(self, amounts, folded=()):
         for p in self.table.players:
@@ -109,7 +109,7 @@ class TournamentTests(unittest.TestCase):
         self.check_rotation({2, 6}, 1, 2, 6, [2, 6], [6, 2], 6)
 
     def test_seat_shuffle_is_seeded_and_varies_between_tables(self):
-        seats = lambda seed: tuple(p.name for p in Tournament(seed).players)
+        seats = lambda seed: tuple(p.name for p in Tournament(seed, measure_timing=False).players)
         self.assertEqual(seats(1), seats(1))
         self.assertGreater(len({seats(seed) for seed in range(10)}), 1)
         self.assertEqual(len(set(seats(1))), 8)
@@ -143,7 +143,7 @@ class TournamentTests(unittest.TestCase):
 
     def test_full_tables_conserve_chips_and_rank_every_player(self):
         for seed in range(30):
-            t = Tournament(seed)
+            t = Tournament(seed, measure_timing=False)
             results = t.run()
             self.assertEqual(len(results), 8)
             self.assertEqual(sum(results.values()), 36)

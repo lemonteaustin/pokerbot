@@ -134,13 +134,14 @@ def legal_choices(state):
     return choices
 
 
-def run(module="my_bot", count=10000, seed=1):
+def run(module="my_bot", count=10000, seed=1, limit_ms=1.0):
     bot = importlib.import_module(module).MyBot()
     rng = random.Random(seed)
     failures = Counter()
     coverage = Counter()
     samples = []
     times = []
+    cpu_times = []
     slow_samples = []
     gc_events = []
     def record_gc(phase, info):
@@ -153,6 +154,7 @@ def run(module="my_bot", count=10000, seed=1):
         coverage[kind] += 1
         impossible += not choices
         started = time.perf_counter_ns()
+        cpu_started = time.thread_time_ns()
         try:
             response = bot.get_action(state)
         except Exception as error:
@@ -163,13 +165,15 @@ def run(module="my_bot", count=10000, seed=1):
                 samples.append((index, kind, type(error).__name__))
         else:
             elapsed = time.perf_counter_ns() - started
+        cpu_elapsed = time.thread_time_ns() - cpu_started
+        cpu_times.append(cpu_elapsed)
         times.append(elapsed)
-        if elapsed > 1_000_000:
-            failures["over_1ms"] += 1
+        if elapsed > limit_ms * 1_000_000:
+            failures["over_limit"] += 1
             if len(slow_samples) < 8:
                 during_gc = any(started <= timestamp <= started + elapsed
                                 for timestamp, _, _ in gc_events)
-                slow_samples.append((index, kind, elapsed / 1e6, during_gc))
+                slow_samples.append((index, kind, elapsed / 1e6, during_gc, cpu_elapsed / 1e6))
         if not choices:
             valid = response == "fold"
             problem = "unsafe_no_action_fallback"
@@ -190,14 +194,15 @@ def run(module="my_bot", count=10000, seed=1):
     print(f"{module}: {count:,} states, seed {seed}, {len(coverage)} scenario groups")
     print(f"Legal-action checks: {count - impossible:,}; no-feasible-action fallback checks: {impossible:,}")
     print(f"Crashes: {failures['crashes']}; illegal actions: {failures['illegal_actions']}; "
-          f"unsafe fallbacks: {failures['unsafe_no_action_fallback']}; over 1 ms: {failures['over_1ms']}")
+          f"unsafe fallbacks: {failures['unsafe_no_action_fallback']}; over {limit_ms:g} ms: {failures['over_limit']}")
     print(f"Median: {statistics.median(times) / 1000:.3f} us; "
           f"p99: {sorted(times)[int(.99 * (len(times) - 1))] / 1000:.3f} us; "
           f"maximum: {max(times) / 1e6:.3f} ms")
+    print(f'Maximum thread CPU time: {max(cpu_times) / 1e6:.3f} ms')
     for index, kind, detail in samples:
         print(f"  Failure #{index} [{kind}]: {detail}")
-    for index, kind, elapsed, during_gc in slow_samples:
-        print(f"  Slow #{index} [{kind}]: {elapsed:.3f} ms; GC during call: {during_gc}")
+    for index, kind, elapsed, during_gc, cpu_ms in slow_samples:
+        print(f"  Slow #{index} [{kind}]: {elapsed:.3f} ms; CPU {cpu_ms:.3f} ms; GC during call: {during_gc}")
     print("Timing is measured wall-clock time, not a guarantee for future calls.")
     return not any(failures.values())
 
@@ -207,7 +212,8 @@ if __name__ == "__main__":
     parser.add_argument("--bot-module", default="my_bot")
     parser.add_argument("--states", type=int, default=10000)
     parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument('--limit-ms', type=float, default=1.0)
     args = parser.parse_args()
     if args.states <= 0:
         parser.error("--states must be positive")
-    raise SystemExit(0 if run(args.bot_module, args.states, args.seed) else 1)
+    raise SystemExit(0 if run(args.bot_module, args.states, args.seed, args.limit_ms) else 1)

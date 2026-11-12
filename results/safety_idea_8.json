@@ -1,0 +1,46 @@
+{
+  "module": "my_bot",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "python": "3.15.2 (v3.15.2:5e58eaad7c5, Oct 25 2026, 14:19:34) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "parallel_decision_timing": false,
+  "passed": false,
+  "checks": [
+    {
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.15/bin/python3",
+        "-m",
+        "unittest",
+        "-q"
+      ],
+      "returncode": 0,
+      "seconds": 1.465424708003411,
+      "output": "----------------------------------------------------------------------\nRan 70 tests in 1.122s\n\nOK\n"
+    },
+    {
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.15/bin/python3",
+        "stress_test.py",
+        "--bot-module",
+        "my_bot"
+      ],
+      "returncode": 1,
+      "seconds": 1.0270449579984415,
+      "output": "my_bot: 10,000 states, seed 1, 25 scenario groups\nLegal-action checks: 8,374; no-feasible-action fallback checks: 1,626\nCrashes: 0; illegal actions: 0; unsafe fallbacks: 0; over 1 ms: 9\nMedian: 7.875 us; p99: 127.708 us; maximum: 5.069 ms\nMaximum thread CPU time: 0.134 ms\n  Slow #2938 [inverted_raise_range]: 1.283 ms; CPU 0.069 ms; GC during call: False\n  Slow #7474 [fold_only]: 2.418 ms; CPU 0.071 ms; GC during call: False\n  Slow #7580 [huge_stacks]: 1.331 ms; CPU 0.037 ms; GC during call: False\n  Slow #7629 [tiny_stacks]: 5.069 ms; CPU 0.054 ms; GC during call: False\n  Slow #8037 [raise_only]: 2.063 ms; CPU 0.132 ms; GC during call: False\n  Slow #8478 [all_in]: 1.456 ms; CPU 0.081 ms; GC during call: False\n  Slow #8798 [boundary_stacks]: 1.536 ms; CPU 0.068 ms; GC during call: False\n  Slow #8811 [call_only]: 1.353 ms; CPU 0.057 ms; GC during call: False\nTiming is measured wall-clock time, not a guarantee for future calls.\n"
+    },
+    {
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.15/bin/python3",
+        "timing_test.py",
+        "--module",
+        "my_bot",
+        "--decisions",
+        "100000",
+        "--label",
+        "idea_8"
+      ],
+      "returncode": 1,
+      "seconds": 2.083493541984353,
+      "output": "{\n  \"module\": \"my_bot\",\n  \"decisions\": 100000,\n  \"prepared_cases\": 1032,\n  \"qos\": \"macOS interactive QoS, result=0\",\n  \"gc_enabled\": true,\n  \"parallel\": false,\n  \"excluded_samples\": 0,\n  \"crashes\": 0,\n  \"illegal\": 0,\n  \"maximum_ms\": 15.400583,\n  \"maximum_cpu_ms\": 0.254917,\n  \"median_us\": 9.167,\n  \"p99_us\": 87.334,\n  \"over_0_2_ms\": 305,\n  \"over_1_ms\": 62,\n  \"passed\": false\n}\n"
+    }
+  ]
+}

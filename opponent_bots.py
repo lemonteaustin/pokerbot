@@ -1,6 +1,7 @@
 """Additional opponents; all decisions use public state and standard Python."""
 
 from my_bot_v2 import MyBot as SavedMyBot, _category
+from my_bot_v6 import MyBot as FrozenV6
 
 
 VALUES = {rank: value for value, rank in enumerate("23456789TJQKA", 2)}
@@ -125,3 +126,115 @@ class LooseAggressiveBot:
         if (made or draw) and to_call and to_call * 3 <= pot:
             return "call"
         return safe
+
+
+def hand_score(cards):
+    """Cheap ordinal starting-hand ranking, not an equity estimate."""
+    a, b = sorted((VALUES[c[0]] for c in cards), reverse=True)
+    return (40 + a * 3 if a == b else a * 2 + b +
+            4 * (cards[0][1] == cards[1][1]) + 2 * (a - b == 1))
+
+
+class NitBot:
+    def get_action(self, state):
+        a, b = sorted((VALUES[c[0]] for c in state['hole_cards']), reverse=True)
+        safe = 'check' if 'check' in state['legal_actions'] else 'fold'
+        if not ((a == b and a >= 11) or (a, b) == (14, 13)):
+            return safe
+        if not state['board']:
+            return raise_to(state, max(3 * state['blinds']['big'],
+                                      3 * state['amount_to_call']))
+        if _category(state['hole_cards'] + state['board']) >= 2:
+            return raise_to(state, state['max_raise_to'])
+        return 'call' if 'call' in state['legal_actions'] else safe
+
+
+class PushFoldBot:
+    """Approximate equilibrium-shaped ranges; not a solved Nash strategy."""
+    def get_action(self, state):
+        safe = 'check' if 'check' in state['legal_actions'] else 'fold'
+        if state['board']:
+            return 'call' if 'call' in state['legal_actions'] else safe
+        bb = state['blinds']['big']
+        depth = state['max_raise_to'] / bb
+        score = hand_score(state['hole_cards'])
+        behind = state.get('players_left_to_act', 4)
+        if state['amount_to_call'] > bb:
+            cutoff = 38 if depth < 4 else 43 if depth < 8 else 47 if depth < 15 else 67
+        else:
+            cutoff = (23 if depth < 4 else 30 if depth < 8 else
+                      35 if depth < 15 else 43 if depth < 25 else 67)
+            cutoff += min(6, behind) * 1.5
+        return raise_to(state, state['max_raise_to']) if score >= cutoff else safe
+
+
+class CallingStationBot:
+    def get_action(self, state):
+        safe = 'check' if 'check' in state['legal_actions'] else 'fold'
+        if not state['amount_to_call']:
+            return safe
+        cards, board = state['hole_cards'], state['board']
+        if not board:
+            good = hand_score(cards) >= 29
+            cheap = state['amount_to_call'] <= 4 * state['blinds']['big']
+            return 'call' if cheap or good else safe
+        made = _category(cards + board) > _category(board)
+        cheap = state['amount_to_call'] <= state['pot'] / 3
+        return 'call' if made or cheap else safe
+
+
+class PositionalTAGBot:
+    def get_action(self, state):
+        safe = 'check' if 'check' in state['legal_actions'] else 'fold'
+        bb, call = state['blinds']['big'], state['amount_to_call']
+        cards, board = state['hole_cards'], state['board']
+        score = hand_score(cards)
+        committed = state['street_contributions'].get('my_bot', 0)
+        if not board:
+            late = state['position'] in ('cutoff', 'button', 'small_blind')
+            threshold = 36 if late and state['folded_to_me'] else 43
+            if call > 3 * bb:
+                threshold = 47 if call < 10 * bb else 67
+            if score < threshold:
+                return safe
+            depth = state['max_raise_to'] / bb
+            target = state['max_raise_to'] if depth <= 14 else max(
+                int(2.5 * bb), 3 * (committed + call))
+            return raise_to(state, target)
+        category = _category(cards + board)
+        made = category > _category(board)
+        top = max(VALUES[c[0]] for c in board)
+        ranks = [VALUES[c[0]] for c in cards]
+        strong = made and (category >= 2 or top in ranks or ranks[0] == ranks[1] > top)
+        if strong:
+            return raise_to(state, committed + call + max(bb, state['pot'] * 2 // 3))
+        return 'call' if made and call and call * 4 <= state['pot'] else safe
+
+
+class SeatAdapter:
+    """Give legacy bots their expected self-name, with anonymous opponents."""
+    def __init__(self, bot, seat, alias='my_bot'):
+        self.bot, self.seat, self.alias = bot, seat, alias
+
+    def get_action(self, state):
+        def rename(name):
+            return self.alias if name == self.seat else 'hero_seat' if name == 'my_bot' else name
+        adapted = dict(state)
+        for field in ('stacks', 'street_contributions', 'total_contributions', 'starting_stacks'):
+            if field in state:
+                adapted[field] = {rename(k): v for k, v in state[field].items()}
+        adapted['active_players'] = tuple(rename(n) for n in state['active_players'])
+        adapted['self_name'] = self.alias
+        if state.get('last_raiser'):
+            adapted['last_raiser'] = rename(state['last_raiser'])
+        return self.bot.get_action(adapted)
+
+
+POOLS = {
+    'WEAK': ('always_fold', 'always_fold', 'random', 'random', 'always_raise',
+             'always_raise', 'calling_station', 'calling_station', 'loose_aggressive',
+             'positional_tag'),
+    'MIXED': ('random', 'always_call', 'always_raise', 'always_fold', 'tight_aggressive',
+              'loose_aggressive', 'v2', 'nit', 'push_fold', 'calling_station', 'positional_tag', 'v6'),
+    'TOUGH': ('tight_aggressive', 'positional_tag', 'push_fold', 'nit', 'loose_aggressive', 'v6'),
+}

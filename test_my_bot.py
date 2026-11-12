@@ -1,10 +1,15 @@
-"""Steal opportunities, v3 equivalence, and fast hand-category checks."""
+"""Frozen legacy strategy regressions plus LIVE bot safety/engine checks.
+
+Exact v3/v4/v6 strategy assertions remain pinned to frozen v6; deliberate
+strategy experiments are checked statistically and by test_strategy.py.
+"""
 
 import random
 import unittest
 from unittest.mock import patch
 
-from my_bot import MyBot, _category
+from my_bot import MyBot as CurrentBot, _category
+from my_bot_v6 import MyBot
 from my_bot_v3 import MyBot as V3Bot, _category as v3_category
 from my_bot_v4 import MyBot as V4Bot
 from simulator import Tournament, evaluate
@@ -215,18 +220,18 @@ class ShortHandedTests(unittest.TestCase):
 class SafetyContractTests(unittest.TestCase):
     def test_missing_data_uses_the_available_action(self):
         for action in ("check", "fold", "call"):
-            self.assertEqual(MyBot().get_action({"legal_actions":(action,)}), action)
-        self.assertEqual(MyBot().get_action({"legal_actions":("raise",),
+            self.assertEqual(CurrentBot().get_action({"legal_actions":(action,)}), action)
+        self.assertEqual(CurrentBot().get_action({"legal_actions":("raise",),
                          "min_raise_to":40, "max_raise_to":100}),
                          {"action":"raise", "amount":40})
 
     def test_no_feasible_action_has_explicit_fold_sentinel(self):
         for s in (None, {}, {"legal_actions":()}, {"legal_actions":("dance",)},
                   {"legal_actions":("raise",), "min_raise_to":100, "max_raise_to":40}):
-            self.assertEqual(MyBot().get_action(s), "fold")
+            self.assertEqual(CurrentBot().get_action(s), "fold")
 
     def test_strategy_cannot_emit_invalid_raise(self):
-        bot = MyBot()
+        bot = CurrentBot()
         for amount in (-1, 0, 39, 2001, True, 1.5, float("nan"), None):
             with patch.object(bot, "_choose_action", return_value={"action":"raise", "amount":amount}):
                 self.assertEqual(bot.get_action(state()), "fold")
@@ -235,14 +240,14 @@ class SafetyContractTests(unittest.TestCase):
                              {"action":"raise", "amount":40})
 
     def test_oversized_inputs_never_enter_strategy(self):
-        bot = MyBot()
+        bot = CurrentBot()
         with patch.object(bot, "_choose_action", side_effect=AssertionError("must not evaluate")) as choose:
             self.assertEqual(bot.get_action(state(board=("As",) * 10000)), "fold")
             self.assertEqual(bot.get_action(state(stacks={str(i):2000 for i in range(10000)})), "fold")
             choose.assert_not_called()
 
     def test_strategy_exception_preserves_legal_fallback(self):
-        bot = MyBot()
+        bot = CurrentBot()
         with patch.object(bot, "_choose_action", side_effect=ValueError("bad input")):
             self.assertEqual(bot.get_action(state(legal_actions=("check",))), "check")
             self.assertEqual(bot.get_action(state(legal_actions=("call",))), "call")
@@ -250,7 +255,7 @@ class SafetyContractTests(unittest.TestCase):
 
 class PositionStateTests(unittest.TestCase):
     def play(self, live=None, first_action="fold"):
-        t = Tournament(1)
+        t = Tournament(1, measure_timing=False)
         seen = {}
         if live is not None:
             for i, p in enumerate(t.players):
@@ -304,7 +309,7 @@ class PositionStateTests(unittest.TestCase):
         self.assertEqual(set(t.positions.values()), {"small_blind", "big_blind"})
 
     def test_metadata_resets_each_hand_and_never_claims_postflop_steal(self):
-        t = Tournament(1)
+        t = Tournament(1, measure_timing=False)
         states = []
 
         class Caller:
@@ -322,7 +327,7 @@ class PositionStateTests(unittest.TestCase):
         self.assertTrue(all(not s["folded_to_me"] for s in states if s["board"]))
 
     def test_all_in_players_still_count_as_remaining(self):
-        t = Tournament(1)
+        t = Tournament(1, measure_timing=False)
         states = []
 
         class ShoveOrCall:
