@@ -103,7 +103,7 @@ Before editing the bot, v6 and identical my_bot were independently run on 10,000
 ## Reproduction and limitations
 
 ```sh
-python3 ab_test.py --tables 10000 --seed 200001 --baseline my_bot_v6 --candidate my_bot_v7 --output results/final_v7_vs_v6.json
+python3 ab_test.py --tables 10000 --seed 200001 --baseline versions.my_bot_v6 --candidate my_bot_v7 --output results/final_v7_vs_v6.json
 python3 verify_final.py
 python3 safety_check.py --label final
 python3 report_results.py

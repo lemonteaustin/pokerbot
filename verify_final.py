@@ -13,7 +13,7 @@ from stress_test import build_case
 
 def main():
     assert Path('my_bot.py').read_bytes() == Path('my_bot_v7.py').read_bytes()
-    v6 = hashlib.sha256(Path('my_bot_v6.py').read_bytes()).hexdigest()
+    v6 = hashlib.sha256(Path('versions/my_bot_v6.py').read_bytes()).hexdigest()
     assert v6 == '22f413df5eca80ed3706aeb664633ea591857ac9bf9f999832a02f42910fed85'
     rng = random.Random(571992)
     old, new = Accepted(), Final()

@@ -5,7 +5,7 @@ import unittest
 
 from simulator import Tournament, DECK, evaluate, evaluate_five
 from tournament_scoring import Finishes, PAYOUTS, icm_probabilities, tournament_points
-from my_bot_v6 import MyBot
+from versions.my_bot_v6 import MyBot
 
 
 class RealisticTests(unittest.TestCase):

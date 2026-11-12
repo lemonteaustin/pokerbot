@@ -9,9 +9,9 @@ import unittest
 from unittest.mock import patch
 
 from my_bot import MyBot as CurrentBot, _category
-from my_bot_v6 import MyBot
-from my_bot_v3 import MyBot as V3Bot, _category as v3_category
-from my_bot_v4 import MyBot as V4Bot
+from versions.my_bot_v6 import MyBot
+from versions.my_bot_v3 import MyBot as V3Bot, _category as v3_category
+from versions.my_bot_v4 import MyBot as V4Bot
 from simulator import Tournament, evaluate
 
 

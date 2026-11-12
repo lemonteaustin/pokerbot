@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Deterministic paired tournament evaluation; no decision timers in workers.
 
-python3 ab_test.py --tables 10000 --baseline my_bot_v6 --candidate my_bot
+python3 ab_test.py --tables 10000 --baseline versions.my_bot_v6 --candidate my_bot
 All three payout vectors rescore the SAME trajectories. Policies receive TOP3
 unless --policy-payout is supplied; this isolates scoring sensitivity.
 """
@@ -23,7 +23,7 @@ from tournament_scoring import PAYOUTS, BLIND_GROWTH
 
 ROOT = Path(__file__).resolve().parent
 ENGINE_FILES = ('simulator.py', 'opponent_bots.py', 'poker_eval.py',
-                'tournament_scoring.py', 'my_bot_v2.py', 'my_bot_v6.py')
+                'tournament_scoring.py', 'versions/my_bot_v2.py', 'versions/my_bot_v6.py')
 
 
 def fingerprint(module):
@@ -125,7 +125,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--tables', type=int, default=10000)
     parser.add_argument('--seed', type=int, default=100001)
-    parser.add_argument('--baseline', default='my_bot_v6')
+    parser.add_argument('--baseline', default='versions.my_bot_v6')
     parser.add_argument('--candidate', default='my_bot')
     parser.add_argument('--workers', type=int, default=min(8, os.cpu_count() or 1))
     parser.add_argument('--chunk', type=int, default=50)

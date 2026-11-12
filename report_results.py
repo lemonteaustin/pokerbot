@@ -140,7 +140,7 @@ def main():
                         f"{rows['FLAT']['baseline']:.4f} | {rows['LINEAR']['baseline']:.4f} |")
     text += ['', '## Reproduction and limitations', '',
              '```sh',
-             'python3 ab_test.py --tables 10000 --seed 200001 --baseline my_bot_v6 --candidate my_bot_v7 --output results/final_v7_vs_v6.json',
+             'python3 ab_test.py --tables 10000 --seed 200001 --baseline versions.my_bot_v6 --candidate my_bot_v7 --output results/final_v7_vs_v6.json',
              'python3 verify_final.py', 'python3 safety_check.py --label final',
              'python3 report_results.py', '```', '',
              'Each comparison uses seeded opponent draws, seats, independent deck and '

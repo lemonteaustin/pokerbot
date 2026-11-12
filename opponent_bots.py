@@ -1,7 +1,7 @@
 """Additional opponents; all decisions use public state and standard Python."""
 
-from my_bot_v2 import MyBot as SavedMyBot, _category
-from my_bot_v6 import MyBot as FrozenV6
+from versions.my_bot_v2 import MyBot as SavedMyBot, _category
+from versions.my_bot_v6 import MyBot as FrozenV6
 
 
 VALUES = {rank: value for value, rank in enumerate("23456789TJQKA", 2)}
