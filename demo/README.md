@@ -21,7 +21,7 @@ Double-click `index.html`, or open it in a browser. Everything it needs—styles
 
 Browser checks cover the 600ms bot delay, raise controls, displayed bets and chip totals, hidden cards, winning-card highlights, hand results, replay, session scores, keyboard shortcuts, and horizontal overflow. The desktop check uses 1440×900 with no page scrolling; phone controls stay pinned at 390px and 320px widths. Reports are in [`test_results/`](test_results/). The comparison covers actual simulator states, browser-engine states, all streets and stack depths, and targeted draw decisions. The JavaScript implementation reproduces Python’s seeded random stream as well as its equity lookup data. The explanations describe the selected strategy branch without naming the bot’s hidden cards.
 
-Use **F** to fold, **C** to check/call, and **R** to raise to the selected amount on desktop. Shortcuts are disabled while editing the slider or when it is not your turn. The scoreboard lasts until the page is closed or reloaded. At showdown, gold outlines mark a winning five-card hand; in a split pot, both players’ best five are highlighted. Current bets appear in front of each seat, separate from the collected pot. These are presentation features; the strategy and game engine are unchanged by the visual polish.
+Use **F** to fold, **C** to check/call, and **R** to raise to the selected amount on desktop. Shortcuts are disabled while editing the slider or when it is not your turn. The scoreboard lasts until the page is closed or reloaded. At showdown, gold outlines mark a winning five-card hand; in a split pot, both players’ best five are highlighted. Current bets appear in front of each seat; the displayed pot includes these bets. These are presentation features; the strategy and game engine are unchanged by the visual polish.
 
 ## Edit and rebuild
 
@@ -82,7 +82,7 @@ The first deployment is already complete. The Vercel project is `play-my-poker-b
    npx --yes vercel deploy --prod --yes
    ```
 
-   Wait for the ready message, then open [the production link](https://play-my-poker-bot.vercel.app) in a private browser window to confirm it opens without signing in. `vercel.json` specifies a static site with no build step; `.vercelignore` uploads only the page and deployment configuration. The folder you deploy must be `demo`, not the repository root.
+   Wait for the ready message, then open [the production link](https://play-my-poker-bot.vercel.app) in a private browser window to confirm it opens without signing in. `vercel.json` specifies a static site with no build step; `.vercelignore` uploads the page, social preview image, and deployment configuration. The folder you deploy must be `demo`, not the repository root.
 7. Save your source changes to GitHub from the repository folder:
 
    ```sh
@@ -103,3 +103,11 @@ npm --cache /tmp/pokerbot-npm-cache exec --yes --package=vercel -- vercel deploy
 See Vercel’s [CLI deployment guide](https://vercel.com/docs/projects/deploy-from-cli) and [deploy command documentation](https://vercel.com/docs/cli/deploy) for its command options.
 
 The charcoal/navy theme embeds Inter Variable in the standalone HTML, with its SIL Open Font License. Font source and license are kept in `fonts/`; no remote font requests are made.
+
+## Profile links and sharing
+
+Paste your GitHub, LinkedIn, and portfolio URLs into `PROFILE_URLS` near the top of `demo/ui.js`. Empty values leave the About links disabled and marked as coming soon; the footer still links to this repository. Run `python3 demo/build.py`, test, and redeploy after editing.
+
+The start screen appears on each fresh page load. Folded bot cards are revealed for 1.8 seconds by default; turn this off in Rules & keyboard shortcuts. Showdown cards remain visible. Match results show the biggest settled pot and a Share button that copies a result and the live URL; a selectable text fallback appears if clipboard access is unavailable.
+
+Open Graph and Twitter metadata live in `template.html`. `preview.png` is a 1200×630 screenshot of the actual table, served publicly for sharing previews. Regenerate it after visual changes with `node demo/generate_preview.cjs` (requires the same Playwright/Chrome setup as browser tests). The game page still makes no asset or font requests while playing; social sites fetch the preview image separately.

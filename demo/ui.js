@@ -7,7 +7,15 @@
   const symbols = {c:'♣',d:'♦',h:'♥',s:'♠'};
   const suitNames = {c:'clubs',d:'diamonds',h:'hearts',s:'spades'};
   const rankNames = {T:'10',J:'Jack',Q:'Queen',K:'King',A:'Ace'};
+  // Paste your profile URLs here, then run python3 demo/build.py.
+  const PROFILE_URLS = {github: '', linkedin: '', portfolio: ''};
+  const SHARE_URL = 'https://play-my-poker-bot.vercel.app/';
   const BOT_DELAY_MS = 600;
+  let started=false, biggestPot=0, lastEndedHand=0, revealUntil=0;
+  function clearReason() {
+    reason=game.actor===1?'Bot is thinking…':'Waiting for your move';
+    botAction='New hand';
+  }
   const {handName,bestFive,logText,resultText}=PokerPresentation;
   const wins=[0,0];
   let game, bot, timer = null, generation = 0, reason, botAction, matchRecorded=false;
@@ -72,8 +80,8 @@
     $('hand-number').textContent = game.handNumber;
     $('blinds').textContent = `${format(game.smallBlind)} / ${format(game.bigBlind)}`;
     const bets=game.handOver?[0,0]:game.contributions;
-    // The engine's pot includes current bets; show them separately until collected.
-    $('pot').textContent = format(game.pot-bets[0]-bets[1]);
+    // Total pot includes the chips displayed in front of both seats.
+    $('pot').textContent = format(game.pot);
     for (const [seat,label] of [[0,'human'],[1,'bot']]) {
       $(label+'-stack').textContent = format(game.stacks[seat]);
       $(label+'-bb').textContent = `${Number((game.stacks[seat]/game.bigBlind).toFixed(1))} BB`;
@@ -85,6 +93,12 @@
       $(label+'-seat').classList.toggle('active',!game.handOver && game.actor===seat);
       $(label+'-status').textContent = !game.handOver && game.stacks[seat]===0 ? 'All-in' : '';
     }
+    if(game.handOver && lastEndedHand!==game.handNumber) {
+      lastEndedHand=game.handNumber;biggestPot=Math.max(biggestPot,game.resultDetails.pot);
+      revealUntil=Date.now()+1800;
+      const hand=game.handNumber, match=generation;
+      setTimeout(()=>{if(match===generation && hand===game.handNumber && game.handOver)render();},1850);
+    }
     const winning=new Set();
     if(game.handOver && game.showdown) {
       for(const seat of game.tie?[0,1]:[game.winner]) {
@@ -92,11 +106,15 @@
       }
     }
     cards($('human-cards'),game.hole[0],2,false,winning);
-    cards($('bot-cards'),game.hole[1],2,!(game.handOver && game.showdown),winning);
+    cards($('bot-cards'),game.hole[1],2,!(game.handOver && (game.showdown || ($('reveal-folds').checked && Date.now()<revealUntil))),winning);
     cards($('board'),game.board,5,false,winning);
     $('human-hand').textContent=handName(game.hole[0].concat(game.board));
     $('result').textContent = game.handOver ? resultText(game) : '';
-    $('reason').textContent = reason;
+    const thinking=!game.handOver && game.actor===1;
+    $('reason').textContent = thinking?'Bot is thinking…':reason;
+    $('reason').title=$('reason').textContent;
+    $('thinking-panel').classList.toggle('thinking',thinking);
+    $('turn').classList.toggle('thinking-text',thinking);
     $('bot-action').textContent = botAction;
     const log=$('log');
     log.replaceChildren(...game.logs.slice(-70).map(text=>{
@@ -112,8 +130,10 @@
     $('blind-hint').textContent = `Blinds rise in ${10-(game.handNumber-1)%10} hand${10-(game.handNumber-1)%10===1?'':'s'}`;
     const yourTurn = !game.handOver && game.actor===0;
     const state=yourTurn ? game.stateFor(0) : null;
-    for(const action of ['fold','check','call','raise']) $(action).disabled = !state || !state.legal_actions.includes(action);
-    buttonLabel('call',state && state.amount_to_call ? `Call ${format(Math.min(game.stacks[0],state.amount_to_call))}` : 'Call','C');
+    for(const action of ['fold','raise']) $(action).disabled = !state || !state.legal_actions.includes(action);
+    $('call').disabled=!state || !state.legal_actions.some(a=>a==='call'||a==='check');
+    $('call').dataset.action=state && state.legal_actions.includes('check')?'check':'call';
+    buttonLabel('call',state && state.amount_to_call ? `Call ${format(Math.min(game.stacks[0],state.amount_to_call))}` : 'Check','C');
     const canRaise = state && state.legal_actions.includes('raise');
     for (const id of ['raise-slider','half-pot','full-pot','all-in']) $(id).disabled = !canRaise;
     if(canRaise) {
@@ -126,6 +146,7 @@
       $('match-title').textContent=game.stacks[0]===4000?'You win!':'Bot wins this time';
       $('match-summary').textContent=`${game.handNumber} hand${game.handNumber===1?'':'s'} played · ${game.stacks[0]===4000?'You collected':'The bot collected'} all 4,000 chips.`;
       $('match-score').textContent=`Games won: You ${wins[0]} · Bot ${wins[1]}`;
+      $('biggest-pot').textContent=`Biggest pot: ${format(biggestPot)} chips`;
       $('match-dialog').showModal();
     }
     $('scoreboard').textContent=`You ${wins[0]} · Bot ${wins[1]}`;
@@ -157,7 +178,7 @@
     }
   }
   function scheduleBot() {
-    if(timer!==null || game.handOver || game.actor!==1) return;
+    if(!started || timer!==null || game.handOver || game.actor!==1) return;
     const turnGeneration=generation;
     timer=setTimeout(()=>{
       timer=null;
@@ -173,7 +194,7 @@
     },BOT_DELAY_MS);
   }
   function act(action) {
-    if(game.handOver || game.actor!==0) return;
+    if(!started || game.handOver || game.actor!==0) return;
     try {applyAction(0,action);scheduleBot();} catch(error) {showError(error);}
   }
   function start() {
@@ -181,13 +202,14 @@
     clearTimeout(timer);timer=null;
     $('match-dialog').close();matchRecorded=false;
     document.querySelectorAll('.chip-flight').forEach(node=>node.remove());
-    game=new PokerGame();bot=new PokerBot.Bot();
-    reason='Take your seat. After each move, I’ll explain the bot’s decision here.';
-    botAction='Waiting for the first move';
+    game=new PokerGame();bot=new PokerBot.Bot();biggestPot=0;lastEndedHand=0;revealUntil=0;
+    $('share-status').textContent='';$('share-text').hidden=true;
+    clearReason();
     $('error').hidden=true;
     render();scheduleBot();
   }
-  for(const action of ['fold','check','call']) $(action).addEventListener('click',()=>act(action));
+  $('fold').addEventListener('click',()=>act('fold'));
+  $('call').addEventListener('click',()=>act($('call').dataset.action));
   $('raise').addEventListener('click',()=>act({action:'raise',amount:Number($('raise-slider').value)}));
   $('raise-slider').addEventListener('input',event=>setRaise(Number(event.target.value)));
   for(const [id,fraction] of [['half-pot',.5],['full-pot',1]]) $(id).addEventListener('click',()=>{
@@ -200,19 +222,36 @@
   $('view-hand').addEventListener('click',()=>$('match-dialog').close());
   document.addEventListener('keydown',event=>{
     if(event.repeat || event.altKey || event.ctrlKey || event.metaKey ||
-      !matchMedia('(min-width: 671px)').matches || $('match-dialog').open ||
+      !matchMedia('(min-width: 671px)').matches || document.querySelector('dialog[open]') ||
       event.target.closest('input,textarea,select,[contenteditable="true"]'))return;
     const key=event.key.toLowerCase();
-    const id=key==='f'?'fold':key==='r'?'raise':key==='c'?($('check').disabled?'call':'check'):null;
+    const id=key==='f'?'fold':key==='r'?'raise':key==='c'?'call':null;
     if(id && !$(id).disabled && !game.handOver && game.actor===0){event.preventDefault();$(id).click();}
   });
   $('next-hand').addEventListener('click',()=>{
     if($('next-hand').dataset.restart==='true') return start();
     if(!game.handOver) return;
-    try {game.newHand();render();scheduleBot();} catch(error) {showError(error);}
+    try {game.newHand();clearReason();render();scheduleBot();} catch(error) {showError(error);}
   });
   new ResizeObserver(entries=>{
     document.documentElement.style.setProperty('--dock-height',`${Math.ceil(entries[0].target.getBoundingClientRect().height)}px`);
   }).observe(document.querySelector('.controls'));
+  $('reveal-folds').addEventListener('change',render);
+  $('play').addEventListener('click',()=>{started=true;$('start-dialog').close();render();scheduleBot();});
+  $('start-dialog').addEventListener('cancel',e=>e.preventDefault());
+  $('about-open').addEventListener('click',()=>$('about-dialog').showModal());
+  $('about-close').addEventListener('click',()=>$('about-dialog').close());
+  for(const [name,url] of Object.entries(PROFILE_URLS)) {
+    const link=$('about-'+name);
+    if(/^https?:\/\//.test(url))link.href=url;
+    else {link.setAttribute('aria-disabled','true');link.title='Paste this URL in PROFILE_URLS in demo/ui.js';}
+  }
+  $('about-links-note').hidden=Object.values(PROFILE_URLS).every(Boolean);
+  $('share-result').addEventListener('click',async()=>{
+    const text=game.stacks[0]===4000?`I beat Austin's poker bot in ${game.handNumber} hands. Can you? ${SHARE_URL}`:`The bot beat me in ${game.handNumber} hands. Can you beat Austin's poker bot? ${SHARE_URL}`;
+    try {await navigator.clipboard.writeText(text);$('share-status').textContent='Copied! Ready to share.';}
+    catch { $('share-text').value=text;$('share-text').hidden=false;$('share-text').focus();$('share-text').select();$('share-status').textContent='Copy the selected text to share your result.'; }
+  });
   start();
+  $('start-dialog').showModal();
 })();

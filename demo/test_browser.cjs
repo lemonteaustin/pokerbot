@@ -26,6 +26,12 @@ fs.mkdirSync(output,{recursive:true});
       await page.goto(url);
       await page.clock.pauseAt(new Date('2030-01-01T00:00:10Z'));
       assert.equal(await page.title(),'Play My Poker Bot');
+      assert.equal(await page.locator('#start-dialog').isVisible(),true);
+      await page.locator('#play').click();
+      assert.equal(await page.locator('#reason').textContent(),'Waiting for your move');
+      await page.locator('#about-open').click();
+      assert.equal(await page.locator('#about-dialog').isVisible(),true);
+      await page.locator('#about-close').click();
       assert.equal(await page.locator('#scoreboard').textContent(),'You 0 · Bot 0');
       assert.equal(await page.locator('#bot-seat .seat-name').textContent(),"Austin's bot");
       assert.ok(!(await page.locator('body').innerText()).includes('· v7'));
@@ -36,12 +42,12 @@ fs.mkdirSync(output,{recursive:true});
       assert.equal(await page.locator('#bot-bb').textContent(),'99 BB');
       assert.equal(await page.locator('#human-bet-amount').textContent(),'10');
       assert.equal(await page.locator('#bot-bet-amount').textContent(),'20');
-      assert.equal(await page.locator('#pot').textContent(),'0');
+      assert.equal(await page.locator('#pot').textContent(),'30');
       assert.equal(await page.locator('#human-blind').textContent(),'Small blind');
       assert.equal(await page.locator('#bot-blind').textContent(),'Big blind');
       assert.ok((await page.locator('#human-hand').textContent()).length>3);
       assert.equal(await page.locator('#bot-cards .back').count(),2);
-      assert.equal(await page.locator('#check').isDisabled(),true);
+      assert.equal(await page.locator('#call').textContent(),'Call 10 C');
       await page.locator('#half-pot').click();assert.equal(await page.locator('#raise-slider').inputValue(),'40');
       await page.locator('#full-pot').click();assert.equal(await page.locator('#raise-slider').inputValue(),'60');
       await page.locator('#all-in').click();assert.equal(await page.locator('#raise-slider').inputValue(),'2000');
@@ -50,9 +56,9 @@ fs.mkdirSync(output,{recursive:true});
       else await page.locator('#call').click();
       assert.equal(await page.locator('#turn').textContent(),'Bot is thinking…');
       await page.clock.runFor(599);
-      assert.equal(await page.locator('#bot-action').textContent(),'Waiting for the first move');
+      assert.equal(await page.locator('#bot-action').textContent(),'New hand');
       await page.clock.runFor(1);
-      assert.notEqual(await page.locator('#bot-action').textContent(),'Waiting for the first move');
+      assert.notEqual(await page.locator('#bot-action').textContent(),'New hand');
       assert.ok((await page.locator('#reason').textContent()).length<200);
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Horizontal overflow');
       async function checkLayout() {
@@ -63,12 +69,16 @@ fs.mkdirSync(output,{recursive:true});
         if(viewport.width<671)assert.ok(Math.abs(box.y+box.height-viewport.height)<1,'Phone controls are not pinned');
       }
       await checkLayout();
+      if(viewport.width===390) {
+        const cards=await page.locator('#human-cards').boundingBox(),strip=await page.locator('#thinking-panel').boundingBox();
+        assert.ok(cards.y+cards.height<=strip.y,'Cards hidden behind dock');
+      }
       await page.screenshot({path:path.join(output,`browser-${viewport.width}.png`),fullPage:true,animations:'disabled'});
       let matches=0,steps=0,reveals=0;
       const won=[0,0];
       while(matches<2 && steps++<1500) {
         assert.equal(await page.locator('#error').isVisible(),false);
-        const chipTotal=await page.evaluate(()=>['human-stack','bot-stack','pot','human-bet-amount','bot-bet-amount'].reduce((total,id)=>total+Number(document.getElementById(id).textContent.replaceAll(',','')),0));
+        const chipTotal=await page.evaluate(()=>['human-stack','bot-stack','pot'].reduce((total,id)=>total+Number(document.getElementById(id).textContent.replaceAll(',','')),0));
         assert.equal(chipTotal,4000);
         if(await page.locator('#next-controls').isVisible()) {
           const log=await page.locator('#log').textContent();
@@ -79,9 +89,13 @@ fs.mkdirSync(output,{recursive:true});
             if(!(await page.locator('#result').textContent()).includes('Split pot'))assert.equal(highlighted,5);
             assert.ok(/high|pair|Pair|flush|Flush|house|Three|Four|straight|Royal/.test(await page.locator('#result').textContent()),'Missing winning hand name');
           }
-          else assert.equal(await page.locator('#bot-cards .back').count(),2);
+          else assert.equal(await page.locator('#bot-cards .back').count(),0);
           await checkLayout();
           if(await page.locator('#next-hand').textContent()==='Play again') {
+            assert.ok((await page.locator('#biggest-pot').textContent()).includes('Biggest pot:'));
+            await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.copiedShare=text;}}}));
+            await page.locator('#share-result').click();
+            assert.ok((await page.evaluate(()=>window.copiedShare)).includes('https://play-my-poker-bot.vercel.app/'));
             matches++;
             won[(await page.locator('#human-stack').textContent())==='4,000'?0:1]++;
             assert.equal(await page.locator('#match-dialog').isVisible(),true);
@@ -96,8 +110,14 @@ fs.mkdirSync(output,{recursive:true});
               // Reopen the same native dialog to test its actual Play again control.
               await page.evaluate(()=>document.getElementById('match-dialog').showModal());
               await page.locator('#play-again').click();
-            } else await page.locator('#next-hand').click();
-          } else await page.locator('#next-hand').click();
+            } else {
+            await page.locator('#next-hand').click();
+            assert.ok(['Waiting for your move','Bot is thinking…'].includes(await page.locator('#reason').textContent()));
+          }
+          } else {
+            await page.locator('#next-hand').click();
+            assert.ok(['Waiting for your move','Bot is thinking…'].includes(await page.locator('#reason').textContent()));
+          }
           continue;
         }
         if(await page.locator('#turn').textContent()==='Bot is thinking…') {await page.clock.runFor(600);continue;}
@@ -105,12 +125,11 @@ fs.mkdirSync(output,{recursive:true});
         if(matches && await page.locator('#raise').isEnabled()) {
           await page.locator('#all-in').click();
           if(viewport.width>670)await page.keyboard.press('r');else await page.locator('#raise').click();
-        } else if(await page.locator('#check').isEnabled())await page.locator('#check').click();
-        else await page.locator('#call').click();
+        } else await page.locator('#call').click();
       }
       assert.equal(matches,2);assert.ok(reveals>0);
       assert.equal(await page.locator('#hand-number').textContent(),'1');
-      assert.equal(await page.locator('#bot-action').textContent(),'Waiting for the first move');
+      assert.equal(await page.locator('#bot-action').textContent(),'New hand');
       assert.equal(await page.locator('#scoreboard').textContent(),`You ${won[0]} · Bot ${won[1]}`);
       if(viewport.width>670){
         await page.locator('#call').focus();await page.keyboard.press('f');

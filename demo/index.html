@@ -6,6 +6,17 @@
 <meta name="theme-color" content="#111216">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23111216'/%3E%3Ctext x='16' y='25' text-anchor='middle' font-size='28' fill='%23d6b77a'%3E%E2%99%A0%3C/text%3E%3C/svg%3E">
 <meta name="description" content="Play heads-up Texas Hold’em against Austin’s poker bot. Free play chips, no account needed. See the strategy behind every move.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Play My Poker Bot">
+<meta property="og:description" content="You vs. Austin’s poker bot. 2,000 play chips each. The bot explains every move.">
+<meta property="og:url" content="https://play-my-poker-bot.vercel.app/">
+<meta property="og:image" content="https://play-my-poker-bot.vercel.app/preview.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A navy poker table with cards, chip stacks, and Austin’s bot explaining its move.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Play My Poker Bot">
+<meta name="twitter:description" content="2,000 play chips each. Take them all to win. The bot explains every move.">
+<meta name="twitter:image" content="https://play-my-poker-bot.vercel.app/preview.png">
 <title>Play My Poker Bot</title>
 <style>
 /* Copyright (c) 2016 The Inter Project Authors (https://github.com/rsms/inter)
@@ -122,6 +133,9 @@ body{background:var(--bg);font-family:Inter,sans-serif}button,input,summary,kbd{
 @media(min-width:671px){.help-panel{max-width:868px}.table{height:455px}.controls{padding:12px 16px}.header-right{padding:0}}
 @media(max-width:850px){.panel{padding:17px}.table{padding:18px 10px}.log{height:200px}}
 @media(max-width:670px){.shell{padding-top:16px}.header{margin-bottom:16px}.header-right{width:auto;padding-left:42px}.brand-mark{font-size:24px}h1{font-size:25px}.table{padding:17px 8px;height:470px}.controls{background:#191c23f5;border-radius:12px 12px 0 0;box-shadow:0 -5px 20px #0003}.panel{padding:20px}.sidebar{gap:16px}.reason{font-size:15px}.log{height:180px}.actions kbd{display:inline;margin-left:3px;font-size:8px}.actions button{font-size:11px}.help-panel{margin-top:16px}.match-dialog h2{font-size:26px}}
+/* Clearer play flow and a compact mobile decision dock. */
+:root{--muted:#bcc0ca}.seat-name,.stack-bb,.hand-label,.range-label,.hint,.table-meta{font-size:12px}.blind-tag{font-size:10px}.log{font-size:13px}.log li{color:#c4c7cf}.actions{grid-template-columns:1fr 1.25fr 1.5fr}.card.empty{background:#ffffff02;border:1px solid #ffffff06;opacity:.35}.text-button{padding:5px 8px;background:none;border:0;color:var(--text);font-size:13px}.reveal-setting{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:12px;color:var(--text)}.reveal-setting input{accent-color:var(--gold)}.about-links{display:flex;gap:20px;justify-content:center;margin:22px 0}.about-links [aria-disabled=true]{opacity:.55;cursor:default;text-decoration:none}#about-dialog p{text-align:left;line-height:1.7}#share-text{width:100%;min-height:100px;margin-top:12px}#share-status{font-size:13px}.thinking-text::after,.thinking #reason::after{content:' ';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-left:8px;animation:thinking-pulse .9s ease-in-out infinite}@keyframes thinking-pulse{50%{opacity:.25;transform:scale(.7)}}
+@media(max-width:670px){.header{gap:6px;margin-bottom:10px}.header-right{padding:0;gap:9px}.scoreboard{font-size:11px}.text-button{font-size:12px}h1{font-size:22px}.table-meta{font-size:10px}.table{height:min(440px,calc(100dvh - 290px));min-height:350px;padding:12px 8px}.seat{min-height:92px}.seat-info{padding:6px 9px}.cards{min-height:72px}.card,.board .card{height:72px;width:51px;font-size:25px}.card .suit{font-size:28px}.center-table{padding:22px 0;gap:5px}.hand-label{font-size:11px}.blind-tag{font-size:9px}.stack-bb{font-size:11px}.controls{padding-top:10px}.hint,.range-label{font-size:11px}.actions button{font-size:13px}.thinking-panel{position:fixed;z-index:41;bottom:var(--dock-height);left:0;right:0;padding:9px 12px!important;border-radius:12px 12px 0 0;border-bottom:0;background:#191c23fa;display:flex;align-items:center;gap:9px;min-width:0}.thinking-panel h2{font-size:11px;white-space:nowrap;margin:0}.thinking-panel .thinking-icon{display:none}.thinking-panel .reason{font-size:12px;line-height:1.4;min-height:0;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;flex:1}.thinking-panel .action-pill{display:none}.controls{border-radius:0}.shell{padding-bottom:calc(var(--dock-height) + 65px)}.sidebar{margin-top:12px}.log-panel{margin-top:0}.help-panel[open]{max-height:none}.match-dialog{max-height:calc(100dvh - 30px);overflow:auto}}
 
 </style>
 </head>
@@ -129,7 +143,7 @@ body{background:var(--bg);font-family:Inter,sans-serif}button,input,summary,kbd{
 <div class="shell">
   <header class="header">
     <div class="brand"><div class="brand-mark" aria-hidden="true">♠</div><div><h1>Play My Poker Bot</h1></div></div>
-    <div class="header-right"><div class="scoreboard" id="scoreboard" aria-label="Games won" aria-live="polite">You 0 · Bot 0</div></div>
+    <div class="header-right"><button id="about-open" class="text-button">About</button><div class="scoreboard" id="scoreboard" aria-label="Games won" aria-live="polite">You 0 · Bot 0</div></div>
   </header>
   <main class="layout">
     <section class="game" aria-label="Poker game">
@@ -157,25 +171,32 @@ body{background:var(--bg);font-family:Inter,sans-serif}button,input,summary,kbd{
       <section class="controls" aria-label="Your actions">
         <div class="turn-line"><span class="turn-label" id="turn" role="status">Your move</span><span class="hint" id="blind-hint">Blinds double every 10 hands</span></div>
         <div id="play-controls">
-          <div class="actions"><button id="fold" aria-keyshortcuts="F" title="Fold (F)">Fold <kbd aria-hidden="true">F</kbd></button><button id="check" aria-keyshortcuts="C" title="Check or call (C)">Check <kbd aria-hidden="true">C</kbd></button><button id="call" aria-keyshortcuts="C" title="Check or call (C)">Call</button><button id="raise" class="primary" aria-keyshortcuts="R" title="Raise to selected amount (R)">Raise to 40</button></div>
+          <div class="actions"><button id="fold" aria-keyshortcuts="F" title="Fold (F)">Fold <kbd aria-hidden="true">F</kbd></button><button id="call" aria-keyshortcuts="C" title="Check or call (C)">Call</button><button id="raise" class="primary" aria-keyshortcuts="R" title="Raise to selected amount (R)">Raise to 40</button></div>
           <div class="sizing"><div class="range-wrap"><div class="range-label"><label for="raise-slider">Raise to</label><output id="raise-value" for="raise-slider">40</output></div><input id="raise-slider" type="range" min="40" max="2000" step="1" value="40"></div><div class="shortcuts"><button id="half-pot">½ pot</button><button id="full-pot">Pot</button><button id="all-in">All-in</button></div></div>
         </div>
         <div id="next-controls" class="next" hidden><p id="next-message">Ready for the next hand?</p><button id="next-hand" class="primary">Next hand</button></div>
       </section>
     </section>
     <aside class="sidebar">
-      <section class="panel"><div class="eyebrow">A look inside the strategy</div><h2><span class="thinking-icon" aria-hidden="true">✧</span>How the bot thinks</h2><p class="reason" id="reason" aria-live="polite">Take your seat. After each move, I’ll explain the bot’s decision here.</p><div class="action-pill" id="bot-action">Waiting for the first move</div></section>
+      <section class="panel thinking-panel" id="thinking-panel"><h2><span class="thinking-icon" aria-hidden="true">✧</span>How the bot thinks</h2><p class="reason" id="reason" aria-live="polite">Take your seat. After each move, I’ll explain the bot’s decision here.</p><div class="action-pill" id="bot-action">Waiting for the first move</div></section>
       <section class="panel log-panel"><h2>Action log</h2><ol id="log" class="log" aria-label="Action history"></ol></section>
 
     </aside>
   </main>
-      <details class="panel help-panel"><summary>Rules &amp; keyboard shortcuts</summary><p class="notes"><strong>The table rules:</strong> 2,000 chips each. Blinds start at 10 / 20 and double every 10 hands. Take all 4,000 chips to win.</p><p class="notes">Make the best five-card hand from your cards and the board. The small blind acts first before the flop; the big blind acts first after it. On desktop: <strong>F</strong> folds, <strong>C</strong> checks or calls, and <strong>R</strong> raises to the slider amount.</p></details>
+      <details class="panel help-panel"><summary>Rules &amp; keyboard shortcuts</summary><label class="reveal-setting"><input id="reveal-folds" type="checkbox" checked> Reveal bot cards briefly after folds</label><p class="notes"><strong>The table rules:</strong> 2,000 chips each. Blinds start at 10 / 20 and double every 10 hands. Take all 4,000 chips to win.</p><p class="notes">Make the best five-card hand from your cards and the board. The small blind acts first before the flop; the big blind acts first after it. On desktop: <strong>F</strong> folds, <strong>C</strong> checks or calls, and <strong>R</strong> raises to the slider amount.</p></details>
   <footer><span>Built by Austin Le Monte · <a href="https://github.com/lemonteaustin/pokerbot" target="_blank" rel="noopener noreferrer">View on GitHub</a> · Play chips only, no real money.</span></footer>
 </div>
 <dialog id="match-dialog" class="match-dialog" aria-labelledby="match-title" aria-describedby="match-summary">
   <div class="match-symbol" aria-hidden="true">♠</div><div class="eyebrow">Match complete</div>
-  <h2 id="match-title">You win!</h2><p id="match-summary"></p><p id="match-score"></p>
-  <button id="play-again" class="primary">Play again</button><button id="view-hand" class="secondary">View final hand</button>
+  <h2 id="match-title">You win!</h2><p id="match-summary"></p><p id="match-score"></p><p id="biggest-pot"></p>
+  <button id="play-again" class="primary">Play again</button><button id="share-result">Share</button><p id="share-status" role="status"></p><textarea id="share-text" readonly aria-label="Result to copy" hidden></textarea><button id="view-hand" class="secondary">View final hand</button>
+</dialog>
+<dialog id="start-dialog" class="match-dialog" aria-labelledby="start-title">
+<h2 id="start-title">You vs. my poker bot.</h2><p>2,000 chips each. Take them all to win.</p><button id="play" class="primary">Play</button><p>The bot explains every move it makes.</p>
+</dialog>
+<dialog id="about-dialog" class="match-dialog" aria-labelledby="about-title">
+<h2 id="about-title">About this bot</h2><p>This is a heads-up poker demo using play chips, with an explanation after every bot move. I built it in a few days with no prior coding background, using AI coding tools. I tested the strategy with paired tournament simulations, checked 500 Python–JavaScript decisions, and ran full-game and browser tests.</p>
+<nav class="about-links"><a id="about-github" target="_blank" rel="noopener noreferrer">GitHub</a><a id="about-linkedin" target="_blank" rel="noopener noreferrer">LinkedIn</a><a id="about-portfolio" target="_blank" rel="noopener noreferrer">Portfolio</a></nav><p id="about-links-note" class="notes">Profile links coming soon.</p><button id="about-close">Close</button>
 </dialog>
 <script id="poker-code">
 /* Faithful, dependency-free browser port of my_bot_v7.py.
@@ -1017,7 +1038,15 @@ body{background:var(--bg);font-family:Inter,sans-serif}button,input,summary,kbd{
   const symbols = {c:'♣',d:'♦',h:'♥',s:'♠'};
   const suitNames = {c:'clubs',d:'diamonds',h:'hearts',s:'spades'};
   const rankNames = {T:'10',J:'Jack',Q:'Queen',K:'King',A:'Ace'};
+  // Paste your profile URLs here, then run python3 demo/build.py.
+  const PROFILE_URLS = {github: '', linkedin: '', portfolio: ''};
+  const SHARE_URL = 'https://play-my-poker-bot.vercel.app/';
   const BOT_DELAY_MS = 600;
+  let started=false, biggestPot=0, lastEndedHand=0, revealUntil=0;
+  function clearReason() {
+    reason=game.actor===1?'Bot is thinking…':'Waiting for your move';
+    botAction='New hand';
+  }
   const {handName,bestFive,logText,resultText}=PokerPresentation;
   const wins=[0,0];
   let game, bot, timer = null, generation = 0, reason, botAction, matchRecorded=false;
@@ -1082,8 +1111,8 @@ body{background:var(--bg);font-family:Inter,sans-serif}button,input,summary,kbd{
     $('hand-number').textContent = game.handNumber;
     $('blinds').textContent = `${format(game.smallBlind)} / ${format(game.bigBlind)}`;
     const bets=game.handOver?[0,0]:game.contributions;
-    // The engine's pot includes current bets; show them separately until collected.
-    $('pot').textContent = format(game.pot-bets[0]-bets[1]);
+    // Total pot includes the chips displayed in front of both seats.
+    $('pot').textContent = format(game.pot);
     for (const [seat,label] of [[0,'human'],[1,'bot']]) {
       $(label+'-stack').textContent = format(game.stacks[seat]);
       $(label+'-bb').textContent = `${Number((game.stacks[seat]/game.bigBlind).toFixed(1))} BB`;
@@ -1095,6 +1124,12 @@ body{background:var(--bg);font-family:Inter,sans-serif}button,input,summary,kbd{
       $(label+'-seat').classList.toggle('active',!game.handOver && game.actor===seat);
       $(label+'-status').textContent = !game.handOver && game.stacks[seat]===0 ? 'All-in' : '';
     }
+    if(game.handOver && lastEndedHand!==game.handNumber) {
+      lastEndedHand=game.handNumber;biggestPot=Math.max(biggestPot,game.resultDetails.pot);
+      revealUntil=Date.now()+1800;
+      const hand=game.handNumber, match=generation;
+      setTimeout(()=>{if(match===generation && hand===game.handNumber && game.handOver)render();},1850);
+    }
     const winning=new Set();
     if(game.handOver && game.showdown) {
       for(const seat of game.tie?[0,1]:[game.winner]) {
@@ -1102,11 +1137,15 @@ body{background:var(--bg);font-family:Inter,sans-serif}button,input,summary,kbd{
       }
     }
     cards($('human-cards'),game.hole[0],2,false,winning);
-    cards($('bot-cards'),game.hole[1],2,!(game.handOver && game.showdown),winning);
+    cards($('bot-cards'),game.hole[1],2,!(game.handOver && (game.showdown || ($('reveal-folds').checked && Date.now()<revealUntil))),winning);
     cards($('board'),game.board,5,false,winning);
     $('human-hand').textContent=handName(game.hole[0].concat(game.board));
     $('result').textContent = game.handOver ? resultText(game) : '';
-    $('reason').textContent = reason;
+    const thinking=!game.handOver && game.actor===1;
+    $('reason').textContent = thinking?'Bot is thinking…':reason;
+    $('reason').title=$('reason').textContent;
+    $('thinking-panel').classList.toggle('thinking',thinking);
+    $('turn').classList.toggle('thinking-text',thinking);
     $('bot-action').textContent = botAction;
     const log=$('log');
     log.replaceChildren(...game.logs.slice(-70).map(text=>{
@@ -1122,8 +1161,10 @@ body{background:var(--bg);font-family:Inter,sans-serif}button,input,summary,kbd{
     $('blind-hint').textContent = `Blinds rise in ${10-(game.handNumber-1)%10} hand${10-(game.handNumber-1)%10===1?'':'s'}`;
     const yourTurn = !game.handOver && game.actor===0;
     const state=yourTurn ? game.stateFor(0) : null;
-    for(const action of ['fold','check','call','raise']) $(action).disabled = !state || !state.legal_actions.includes(action);
-    buttonLabel('call',state && state.amount_to_call ? `Call ${format(Math.min(game.stacks[0],state.amount_to_call))}` : 'Call','C');
+    for(const action of ['fold','raise']) $(action).disabled = !state || !state.legal_actions.includes(action);
+    $('call').disabled=!state || !state.legal_actions.some(a=>a==='call'||a==='check');
+    $('call').dataset.action=state && state.legal_actions.includes('check')?'check':'call';
+    buttonLabel('call',state && state.amount_to_call ? `Call ${format(Math.min(game.stacks[0],state.amount_to_call))}` : 'Check','C');
     const canRaise = state && state.legal_actions.includes('raise');
     for (const id of ['raise-slider','half-pot','full-pot','all-in']) $(id).disabled = !canRaise;
     if(canRaise) {
@@ -1136,6 +1177,7 @@ body{background:var(--bg);font-family:Inter,sans-serif}button,input,summary,kbd{
       $('match-title').textContent=game.stacks[0]===4000?'You win!':'Bot wins this time';
       $('match-summary').textContent=`${game.handNumber} hand${game.handNumber===1?'':'s'} played · ${game.stacks[0]===4000?'You collected':'The bot collected'} all 4,000 chips.`;
       $('match-score').textContent=`Games won: You ${wins[0]} · Bot ${wins[1]}`;
+      $('biggest-pot').textContent=`Biggest pot: ${format(biggestPot)} chips`;
       $('match-dialog').showModal();
     }
     $('scoreboard').textContent=`You ${wins[0]} · Bot ${wins[1]}`;
@@ -1167,7 +1209,7 @@ body{background:var(--bg);font-family:Inter,sans-serif}button,input,summary,kbd{
     }
   }
   function scheduleBot() {
-    if(timer!==null || game.handOver || game.actor!==1) return;
+    if(!started || timer!==null || game.handOver || game.actor!==1) return;
     const turnGeneration=generation;
     timer=setTimeout(()=>{
       timer=null;
@@ -1183,7 +1225,7 @@ body{background:var(--bg);font-family:Inter,sans-serif}button,input,summary,kbd{
     },BOT_DELAY_MS);
   }
   function act(action) {
-    if(game.handOver || game.actor!==0) return;
+    if(!started || game.handOver || game.actor!==0) return;
     try {applyAction(0,action);scheduleBot();} catch(error) {showError(error);}
   }
   function start() {
@@ -1191,13 +1233,14 @@ body{background:var(--bg);font-family:Inter,sans-serif}button,input,summary,kbd{
     clearTimeout(timer);timer=null;
     $('match-dialog').close();matchRecorded=false;
     document.querySelectorAll('.chip-flight').forEach(node=>node.remove());
-    game=new PokerGame();bot=new PokerBot.Bot();
-    reason='Take your seat. After each move, I’ll explain the bot’s decision here.';
-    botAction='Waiting for the first move';
+    game=new PokerGame();bot=new PokerBot.Bot();biggestPot=0;lastEndedHand=0;revealUntil=0;
+    $('share-status').textContent='';$('share-text').hidden=true;
+    clearReason();
     $('error').hidden=true;
     render();scheduleBot();
   }
-  for(const action of ['fold','check','call']) $(action).addEventListener('click',()=>act(action));
+  $('fold').addEventListener('click',()=>act('fold'));
+  $('call').addEventListener('click',()=>act($('call').dataset.action));
   $('raise').addEventListener('click',()=>act({action:'raise',amount:Number($('raise-slider').value)}));
   $('raise-slider').addEventListener('input',event=>setRaise(Number(event.target.value)));
   for(const [id,fraction] of [['half-pot',.5],['full-pot',1]]) $(id).addEventListener('click',()=>{
@@ -1210,21 +1253,38 @@ body{background:var(--bg);font-family:Inter,sans-serif}button,input,summary,kbd{
   $('view-hand').addEventListener('click',()=>$('match-dialog').close());
   document.addEventListener('keydown',event=>{
     if(event.repeat || event.altKey || event.ctrlKey || event.metaKey ||
-      !matchMedia('(min-width: 671px)').matches || $('match-dialog').open ||
+      !matchMedia('(min-width: 671px)').matches || document.querySelector('dialog[open]') ||
       event.target.closest('input,textarea,select,[contenteditable="true"]'))return;
     const key=event.key.toLowerCase();
-    const id=key==='f'?'fold':key==='r'?'raise':key==='c'?($('check').disabled?'call':'check'):null;
+    const id=key==='f'?'fold':key==='r'?'raise':key==='c'?'call':null;
     if(id && !$(id).disabled && !game.handOver && game.actor===0){event.preventDefault();$(id).click();}
   });
   $('next-hand').addEventListener('click',()=>{
     if($('next-hand').dataset.restart==='true') return start();
     if(!game.handOver) return;
-    try {game.newHand();render();scheduleBot();} catch(error) {showError(error);}
+    try {game.newHand();clearReason();render();scheduleBot();} catch(error) {showError(error);}
   });
   new ResizeObserver(entries=>{
     document.documentElement.style.setProperty('--dock-height',`${Math.ceil(entries[0].target.getBoundingClientRect().height)}px`);
   }).observe(document.querySelector('.controls'));
+  $('reveal-folds').addEventListener('change',render);
+  $('play').addEventListener('click',()=>{started=true;$('start-dialog').close();render();scheduleBot();});
+  $('start-dialog').addEventListener('cancel',e=>e.preventDefault());
+  $('about-open').addEventListener('click',()=>$('about-dialog').showModal());
+  $('about-close').addEventListener('click',()=>$('about-dialog').close());
+  for(const [name,url] of Object.entries(PROFILE_URLS)) {
+    const link=$('about-'+name);
+    if(/^https?:\/\//.test(url))link.href=url;
+    else {link.setAttribute('aria-disabled','true');link.title='Paste this URL in PROFILE_URLS in demo/ui.js';}
+  }
+  $('about-links-note').hidden=Object.values(PROFILE_URLS).every(Boolean);
+  $('share-result').addEventListener('click',async()=>{
+    const text=game.stacks[0]===4000?`I beat Austin's poker bot in ${game.handNumber} hands. Can you? ${SHARE_URL}`:`The bot beat me in ${game.handNumber} hands. Can you beat Austin's poker bot? ${SHARE_URL}`;
+    try {await navigator.clipboard.writeText(text);$('share-status').textContent='Copied! Ready to share.';}
+    catch { $('share-text').value=text;$('share-text').hidden=false;$('share-text').focus();$('share-text').select();$('share-status').textContent='Copy the selected text to share your result.'; }
+  });
   start();
+  $('start-dialog').showModal();
 })();
 
 </script>
