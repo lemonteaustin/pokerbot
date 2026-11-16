@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "url": "file:///Users/austinlemonte/Downloads/pokerbot/demo/index.html",
+  "runs": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "matches": 2,
+      "steps": 260,
+      "showdownReveals": 21
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "matches": 2,
+      "steps": 260,
+      "showdownReveals": 21
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 740
+      },
+      "matches": 2,
+      "steps": 260,
+      "showdownReveals": 21
+    }
+  ],
+  "pageErrors": [],
+  "externalRequests": 0
+}

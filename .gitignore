@@ -24,3 +24,8 @@ htmlcov/
 
 # Reproducible tournament caches; keep measured reports tracked
 results/cache/
+
+# Local web-demo tooling and deployment credentials
+node_modules/
+.vercel/
+demo/test_results/*.png

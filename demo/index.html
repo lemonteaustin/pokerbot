@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101716">
+<meta name="description" content="Play heads-up Texas Hold’em against Austin’s poker bot. Free play chips, no account needed. See the strategy behind every move.">
+<title>Play My Poker Bot</title>
+<style>
+:root{color-scheme:dark;--bg:#101716;--panel:#192220;--line:#303e39;--text:#f3f0e7;--muted:#a5b5ac;--green:#b9edb0;--gold:#e6c58a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 45% 30%,#21362c 0,transparent 65%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{cursor:default;opacity:.35}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:4px}a{color:inherit;text-underline-offset:4px}button{border:1px solid #425249;border-radius:9px;background:#24352c;color:var(--text);padding:12px 18px;font-weight:650;transition:background .15s}button:hover:not(:disabled){background:#354c3b}button.primary{background:var(--green);color:#122718;border-color:var(--green)}button.primary:hover:not(:disabled){background:#d0ffc7}[hidden]{display:none!important}
+.shell{max-width:1240px;margin:auto;padding:34px 34px 18px}.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;gap:20px}.eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--green);font-weight:700}.brand{display:flex;align-items:center;gap:13px}.brand-mark{border:1px solid #5a715e;border-radius:13px;width:46px;height:46px;display:grid;place-items:center;color:var(--green);font:30px Georgia,serif;transform:rotate(-6deg)}h1{font:400 clamp(26px,3vw,36px)/1.2 Georgia,serif;margin:3px 0 0;letter-spacing:-.8px}.badge{border:1px solid var(--line);border-radius:30px;padding:7px 13px;font-size:12px;color:var(--muted);white-space:nowrap}.badge::before{content:"";display:inline-block;width:6px;height:6px;background:var(--green);border-radius:50%;margin-right:8px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:24px}.game{min-width:0}.table-meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;padding:0 10px 14px;gap:10px}.table-meta strong{color:var(--text);font-weight:550}.table-wrap{padding:2px 0 16px}.table{position:relative;min-height:488px;background:radial-gradient(ellipse at center,#26533e,#173a2c 70%);border:10px solid #29362f;border-radius:180px;box-shadow:0 0 0 1px #526147,inset 0 0 0 2px #56714b66,inset 0 10px 70px #081e1e80,0 22px 60px #0003;display:flex;align-items:center;flex-direction:column;padding:20px 12px;isolation:isolate}.table::before{content:"";position:absolute;inset:17px;border:1px solid #bed7a517;border-radius:160px;z-index:-1}.seat{display:flex;align-items:center;flex-direction:column;gap:7px}.seat-info{background:#12231ee6;border:1px solid #47604c;border-radius:10px;padding:6px 17px;min-width:158px;display:flex;align-items:center;justify-content:space-between;gap:24px;box-shadow:0 4px 18px #0002}.seat-info.active{border-color:var(--green);box-shadow:0 0 0 2px #b9edb012}.seat-name{font-size:12px;color:var(--muted)}.stack{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.3}.seat-status{color:var(--gold);font-size:10px;letter-spacing:.7px;text-transform:uppercase;min-height:15px}.dealer{background:#f6ebcf;color:#253d2a;border-radius:50%;height:23px;width:23px;display:grid;place-items:center;font-size:11px;font-weight:800;box-shadow:0 2px 5px #0004}.cards{display:flex;gap:7px;justify-content:center;min-height:67px}.card{height:68px;width:48px;border-radius:6px;background:#f6f1e4;color:#28392f;box-shadow:0 3px 5px #0004;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:4px 6px;line-height:1;font:600 23px/1 Georgia,serif;position:relative}.card .suit{align-self:flex-end;font-size:25px}.card.red{color:#b33d49}.card.back{background:repeating-linear-gradient(45deg,transparent,transparent 4px,#d2b88123 4px,#d2b88123 5px),#233f36;border:3px solid #a2ac8f;align-items:center;justify-content:center;color:var(--gold)}.card.back::after{content:"♠";font-size:27px;background:#233f36;padding:1px}.card.empty{background:#102f2580;border:1px dashed #6e886e55;box-shadow:none}.center-table{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px 0 10px;flex:1;width:100%}.pot{display:flex;gap:9px;align-items:center;font-size:12px;color:#d0decc}.pot strong{color:var(--text);font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}.chips{height:17px;width:23px;border:2px dashed #efd08b;border-radius:50%;background:#947c42;box-shadow:0 3px 0 #594c30,0 5px 0 #c5a76a}.board{gap:6px}.table-caption{font-size:10px;color:#a4bd9a77;letter-spacing:3px;text-transform:uppercase;margin-top:2px}.result{max-width:90%;text-align:center;color:var(--gold);font-size:13px;min-height:20px}.controls{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px 18px;margin-top:5px}.turn-line{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:13px}.turn-label{font-size:13px;color:var(--green);font-weight:600}.hint{color:var(--muted);font-size:11px}.actions{display:grid;grid-template-columns:1fr 1fr 1fr 1.45fr;gap:8px}.actions button{padding:12px 6px}.sizing{display:grid;grid-template-columns:1fr auto;gap:15px;margin-top:15px;align-items:center}.range-wrap{min-width:0}.range-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:3px}.range-label output{color:var(--text);font-size:12px;font-variant-numeric:tabular-nums}input[type=range]{width:100%;accent-color:var(--green);cursor:pointer;height:24px;margin:0}.shortcuts{display:flex;gap:5px}.shortcuts button{font-size:11px;padding:7px 9px;background:transparent;border-color:var(--line)}.next{display:flex;justify-content:space-between;align-items:center;gap:16px}.next p{margin:0;font-size:13px;color:var(--muted)}.sidebar{display:flex;flex-direction:column;gap:16px}.panel{border:1px solid var(--line);border-radius:13px;background:linear-gradient(125deg,#1f2c26,#18221f);padding:21px}.panel h2{font-size:15px;margin:0 0 12px;font-weight:600}.panel .eyebrow{font-size:10px;margin-bottom:13px;color:var(--gold)}.thinking-icon{color:var(--green);font-size:19px;margin-right:6px}.reason{font:400 19px/1.5 Georgia,serif;margin:0;min-height:112px;color:#e0e7d8}.action-pill{font-size:10px;letter-spacing:.8px;color:var(--green);text-transform:uppercase;border-top:1px solid var(--line);padding-top:13px;margin-top:16px}.notes{font-size:12px;color:var(--muted);line-height:1.7;margin:0}.notes strong{color:#d4decf;font-weight:500}.log-panel{flex:1;min-height:190px}.log{max-height:205px;overflow:auto;margin:0;padding:0;list-style:none;font-size:12px;scrollbar-width:thin;scrollbar-color:#53684f transparent}.log li{padding:6px 0;border-bottom:1px solid #303e3966;color:#aab9ad}.log li:last-child{border:0;color:var(--text)}footer{display:flex;justify-content:space-between;gap:15px;margin-top:24px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}footer a:hover{color:var(--green)}.error{padding:12px;background:#4e2626;border-radius:8px;margin:10px 0}details summary{cursor:pointer;color:var(--text);font-size:12px}details p{margin-bottom:0}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+@media(min-width:1200px){.shell{padding-top:42px}.table{min-height:510px}.center-table{padding:18px 0}.board .card{width:55px;height:76px}}
+@media(max-width:850px){.shell{padding:22px 20px}.layout{grid-template-columns:minmax(0,1fr) 245px;gap:16px}.panel{padding:17px}.table{border-radius:110px;min-height:480px}.table::before{border-radius:95px}.reason{font-size:17px}.sizing{grid-template-columns:1fr;gap:6px}.shortcuts{justify-content:flex-end}}
+@media(max-width:670px){.shell{padding:18px 14px}.header{margin-bottom:20px;align-items:flex-start;gap:8px}.brand{gap:10px}.brand-mark{width:36px;height:39px;font-size:25px}.eyebrow{font-size:9px}.badge{font-size:10px;padding:5px 8px}.badge::before{margin-right:5px;width:5px;height:5px}h1{font-size:25px}.layout{grid-template-columns:1fr;gap:17px}.table-meta{font-size:11px;padding-bottom:12px}.table{min-height:450px;border-width:7px;border-radius:100px;padding:15px 9px}.card{height:63px;width:45px;font-size:21px}.board .card{height:63px;width:44px}.center-table{padding:8px 0}.cards{min-height:63px}.controls{padding:14px}.actions{gap:6px}.actions button{font-size:13px;min-height:46px}.sizing{grid-template-columns:1fr auto;gap:12px}.shortcuts button{padding:8px}.sidebar{gap:12px}.reason{min-height:0;font-size:18px}.panel{padding:18px}.action-pill{margin-top:12px;padding-top:10px}.log-panel{min-height:0}.log{max-height:135px}.rules-panel{display:none}footer{display:block;line-height:1.9;margin-top:18px}footer span{display:block}.hint{font-size:10px}.seat-info{padding:5px 15px}.stack{font-size:19px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="header">
+    <div class="brand"><div class="brand-mark" aria-hidden="true">♠</div><div><div class="eyebrow">Human intuition. Bot strategy.</div><h1>Play My Poker Bot</h1></div></div>
+    <div class="badge">Play chips only</div>
+  </header>
+  <main class="layout">
+    <section class="game" aria-label="Poker game">
+      <div class="table-meta"><span>HEADS-UP <strong>NO-LIMIT HOLD’EM</strong></span><span>Hand <strong id="hand-number">1</strong> · Blinds <strong id="blinds">10 / 20</strong></span></div>
+      <div class="table-wrap"><div class="table">
+        <div class="seat" aria-label="Bot seat">
+          <div class="seat-info" id="bot-seat"><div><div class="seat-name">Austin’s bot <span aria-hidden="true">· v7</span></div><div class="stack" id="bot-stack">2,000</div></div><span class="dealer" id="bot-dealer" aria-label="Bot is dealer" hidden>D</span></div>
+          <div class="cards" id="bot-cards" aria-label="Bot cards"></div>
+          <div class="seat-status" id="bot-status"></div>
+        </div>
+        <div class="center-table">
+          <div class="pot"><span class="chips" aria-hidden="true"></span> POT <strong id="pot">30</strong></div>
+          <div class="cards board" id="board" aria-label="Community cards"></div>
+          <div class="table-caption">Austin’s table</div>
+          <div class="result" id="result" role="status"></div>
+        </div>
+        <div class="seat" aria-label="Your seat">
+          <div class="seat-status" id="human-status"></div>
+          <div class="cards" id="human-cards" aria-label="Your cards"></div>
+          <div class="seat-info" id="human-seat"><div><div class="seat-name">You</div><div class="stack" id="human-stack">2,000</div></div><span class="dealer" id="human-dealer" aria-label="You are dealer">D</span></div>
+        </div>
+      </div></div>
+      <div id="error" class="error" role="alert" hidden></div>
+      <section class="controls" aria-label="Your actions">
+        <div class="turn-line"><span class="turn-label" id="turn" role="status">Your move</span><span class="hint" id="blind-hint">Blinds double every 10 hands</span></div>
+        <div id="play-controls">
+          <div class="actions"><button id="fold">Fold</button><button id="check">Check</button><button id="call">Call</button><button id="raise" class="primary">Raise</button></div>
+          <div class="sizing"><div class="range-wrap"><div class="range-label"><label for="raise-slider">Total bet this round</label><output id="raise-value" for="raise-slider">40</output></div><input id="raise-slider" type="range" min="40" max="2000" step="1" value="40"></div><div class="shortcuts"><button id="half-pot">½ pot</button><button id="full-pot">Pot</button><button id="all-in">All-in</button></div></div>
+        </div>
+        <div id="next-controls" class="next" hidden><p id="next-message">Ready for the next hand?</p><button id="next-hand" class="primary">Next hand</button></div>
+      </section>
+    </section>
+    <aside class="sidebar">
+      <section class="panel"><div class="eyebrow">A look inside the strategy</div><h2><span class="thinking-icon" aria-hidden="true">✧</span>How the bot thinks</h2><p class="reason" id="reason" aria-live="polite">Take your seat. After each move, I’ll explain the bot’s decision here.</p><div class="action-pill" id="bot-action">Waiting for the first move</div></section>
+      <section class="panel rules-panel"><h2>The table rules</h2><p class="notes"><strong>2,000 chips each.</strong> Blinds start at 10 / 20 and double every 10 hands. Take all 4,000 chips to win. No accounts, no real money.</p></section>
+      <section class="panel log-panel"><h2>Action log</h2><ol id="log" class="log" aria-label="Action history"></ol></section>
+      <details class="panel"><summary>New to heads-up poker?</summary><p class="notes">Make the best five-card hand using your two cards and the five shared cards. Check to pass when there’s no bet, call to match, raise to increase, or fold to leave the hand. The dealer posts the small blind and acts first before the flop. After the flop, the other player acts first.</p></details>
+    </aside>
+  </main>
+  <footer><span>Built by Austin Le Monte with AI coding tools · <a href="https://github.com/lemonteaustin/pokerbot" target="_blank" rel="noopener noreferrer">View on GitHub ↗</a></span><span>Just you, the bot, and 4,000 play chips.</span></footer>
+</div>
+<script id="poker-code">
+/* Faithful, dependency-free browser port of my_bot_v7.py.
+ * Load as a classic script (also safe to inline). No module loader or network.
+ * new PokerBot.Bot().getAction(state) returns a legal action and sets .reason.
+ * score(cards) returns a lexicographic showdown array; compare with compareScores.
+ * strength(state) returns [level, estimatedEquity], using the Python state keys.
+ * Chips use JS numbers; use safe integer chip amounts for exact arithmetic.
+ * Generated data is refreshed by: python3 -B demo/generate_bot_data.py
+ */
+(() => {
+  "use strict";
+
+  // BEGIN GENERATED PYTHON DATA
+  const DATA = {"constants":{"MAX_PLAYERS":8,"MAX_HANDS":200,"MAX_LEGAL_ACTIONS":8,"MAX_INTEGER_BITS":256,"MAX_ID_LENGTH":64,"POST_DRAW_MAX_OPPONENTS":2,"POST_VERY_STRONG_EQUITY":0.9,"POST_STRONG_EQUITY":0.72,"POST_TWO_PAIR_EQUITY":0.78,"POST_MEDIUM_EQUITY":0.37,"POST_TOP_PAIR_EQUITY":0.52,"POST_NOTHING_EQUITY":0.06,"POST_MULTIWAY_PENALTY":0.22,"DRAW_FLOP_OUT_VALUE":0.035,"DRAW_TURN_OUT_VALUE":0.022,"MAX_DRAW_EQUITY":0.48,"POST_CALL_MARGIN":0.03,"POST_VERY_STRONG_BET":0.75,"POST_STRONG_BET":0.6,"POST_DRAW_BET":0.25,"POST_DRAW_BET_FREQUENCY":0.35,"POST_MAX_WEAK_INVESTMENT":0.3333333333333333,"POST_COMMITTED_FRACTION":0.5,"POST_GOOD_KICKER":11,"STRAIGHT_DRAW_MASKS":[62,124,248,496,992,1984,3968,7936,15872,31744],"BB_DEFEND_CALL_BB":1.5,"BB_DEFEND_STACK_FRACTION":0.08,"SHOVER_VERY_SHORT_BB":4,"SHOVER_SHORT_BB":8,"SHOVER_MEDIUM_BB":15,"BUST_RISK_FRACTION":0.8,"CRIPPLE_RISK_FRACTION":0.4,"BUST_RISK_PREMIUM":0.09,"CRIPPLE_RISK_PREMIUM":0.05,"COVERED_RISK_PREMIUM":0.015,"MULTIWAY_EQUITY_EXPONENT":0.85,"DEEP_STACK_BB":40,"PUSH_FOLD_BB":15,"DEEP_OPEN_BB":2.25,"MID_OPEN_BB":2.5,"RERAISE_MULTIPLIER":3,"BIG_RAISE_BB":3,"PREMIUM_PAIR_MIN":11,"STRONG_PAIR_MIN":8,"STRONG_ACE_KICKER":11,"STEAL_KING_KICKER":10,"SHOVE_FRACTIONS":[0.95,0.88,0.78,0.67,0.58,0.46,0.42,0.38,0.34,0.31,0.29,0.27,0.25,0.23,0.21],"CALL_FRACTIONS":[0.6,0.48,0.38,0.32,0.28,0.24,0.21,0.19,0.17,0.15,0.14,0.13,0.12,0.11,0.1],"POSITION_BONUS":{"early":0.0,"cutoff":0.03,"button":0.08,"small_blind":0.15,"big_blind":0.08},"BEHIND_PENALTY":0.028,"MIN_RANGE":0.06,"MAX_RANGE":1.0,"CHART_PAIR_BASE":32,"CHART_PAIR_WEIGHT":2.5,"CHART_HIGH_WEIGHT":2,"CHART_SUITED_BONUS":3,"CHART_CONNECTED_BONUS":1.5,"CHART_CALL_BEHIND_DIVISOR":2,"POSITION_EARLY_PAIRS":"88 99 TT JJ QQ KK AA","POSITION_EARLY_BROADWAY":"AJs AQs AKs AQo AKo KQs","POSITION_CUTOFF_EXTRA":"22 33 44 55 66 77 A2s A3s A4s A5s A6s A7s A8s A9s ATs ATo AJo K9s KTs KJs KTo KJo KQo Q9s QTs QJs QJo J9s JTs T9s 98s 87s 76s","POSITION_BUTTON_EXTRA":"A2o A3o A4o A5o A6o A7o A8o A9o K2s K3s K4s K5s K6s K7s K8s K8o K9o Q8s QTo J8s JTo T8s T9o 97s 86s 75s 65s 54s","POSITION_SMALL_BLIND_EXTRA":"K5o K6o K7o Q7s Q8o Q9o J7s J9o T7s T8o 98o 96s 87o 85s 76o 64s 53s","RANKS":"23456789TJQKA","POSITIONS":["early","cutoff","button","small_blind","big_blind"]},"equity":{"22":[0.505675,0.376225,0.43405,0.4625,0.47735],"32o":[0.3255,0.2527,0.2873,0.29885,0.3071],"32s":[0.358325,0.2935,0.328425,0.3332,0.343675],"33":[0.537325,0.375925,0.4409,0.475775,0.4995],"42o":[0.328925,0.26295,0.2943,0.295025,0.316625],"42s":[0.369275,0.30165,0.324575,0.33715,0.34885],"43o":[0.35245,0.2739,0.3029,0.3148,0.3264],"43s":[0.38535,0.31005,0.336025,0.34965,0.366825],"44":[0.562975,0.387025,0.446925,0.4979,0.5206],"52o":[0.3435,0.26765,0.30205,0.3073,0.3209],"52s":[0.37485,0.30275,0.3391,0.345825,0.35385],"53o":[0.357675,0.2818,0.301675,0.324425,0.334075],"53s":[0.3987,0.316975,0.3451,0.360975,0.3764],"54o":[0.383625,0.286725,0.323125,0.3356,0.34715],"54s":[0.4095,0.32315,0.359425,0.375725,0.385875],"55":[0.60125,0.39365,0.47115,0.517075,0.5402],"62o":[0.34085,0.2507,0.2763,0.298225,0.30675],"62s":[0.3776,0.2911,0.3232,0.335375,0.345675],"63o":[0.362675,0.25415,0.2939,0.31355,0.3232],"63s":[0.399575,0.305125,0.330075,0.349625,0.357625],"64o":[0.383075,0.275175,0.31505,0.328075,0.340925],"64s":[0.415775,0.319925,0.34385,0.3672,0.380875],"65o":[0.398725,0.292925,0.32375,0.346625,0.35705],"65s":[0.43335,0.3266,0.3672,0.376575,0.388825],"66":[0.6261,0.40715,0.49015,0.5446,0.5634],"72o":[0.34635,0.239725,0.27595,0.29215,0.295375],"72s":[0.382625,0.2838,0.315475,0.328475,0.332575],"73o":[0.3684,0.253725,0.288575,0.30525,0.312675],"73s":[0.39525,0.296375,0.325775,0.34355,0.355],"74o":[0.3891,0.267675,0.31135,0.326425,0.327775],"74s":[0.4163,0.302625,0.341825,0.3592,0.373375],"75o":[0.408225,0.284475,0.3167,0.338525,0.349625],"75s":[0.436975,0.316975,0.348,0.3745,0.382325],"76o":[0.422275,0.292775,0.33045,0.355225,0.362],"76s":[0.4499,0.331775,0.357625,0.390425,0.40125],"77":[0.660425,0.43545,0.514025,0.560475,0.584675],"82o":[0.3746,0.25575,0.28625,0.29675,0.3111],"82s":[0.402825,0.291575,0.3271,0.333275,0.33925],"83o":[0.370375,0.2524,0.279725,0.303025,0.310925],"83s":[0.40995,0.290725,0.32175,0.33435,0.342],"84o":[0.39555,0.2672,0.29835,0.3194,0.3284],"84s":[0.433025,0.3027,0.3367,0.347725,0.36585],"85o":[0.4133,0.27965,0.31195,0.32945,0.336425],"85s":[0.44315,0.309675,0.3515,0.368675,0.385775],"86o":[0.434325,0.293375,0.318825,0.348375,0.354075],"86s":[0.463975,0.327125,0.36105,0.377875,0.397875],"87o":[0.4491,0.30905,0.33795,0.356225,0.371975],"87s":[0.48445,0.341875,0.3732,0.38935,0.408775],"88":[0.6891,0.469425,0.5484,0.5832,0.615075],"92o":[0.38895,0.257275,0.287175,0.304425,0.30505],"92s":[0.4261,0.2907,0.324275,0.33995,0.3426],"93o":[0.401675,0.255625,0.2872,0.3038,0.3111],"93s":[0.4252,0.3039,0.327925,0.33735,0.34825],"94o":[0.40545,0.26325,0.2908,0.301075,0.318925],"94s":[0.4415,0.304575,0.3293,0.347875,0.356075],"95o":[0.428,0.2723,0.31,0.326675,0.337575],"95s":[0.4564,0.315525,0.341225,0.36325,0.3704],"96o":[0.4481,0.285325,0.322575,0.335975,0.349875],"96s":[0.468375,0.3212,0.34605,0.370275,0.386275],"97o":[0.4621,0.3002,0.333325,0.353375,0.36555],"97s":[0.493375,0.343075,0.36985,0.388125,0.398675],"98o":[0.479975,0.312225,0.347075,0.35965,0.37925],"98s":[0.510425,0.353175,0.374725,0.3918,0.407475],"99":[0.7208,0.500675,0.5735,0.614625,0.6342],"A2o":[0.558225,0.2998,0.3815,0.44845,0.495025],"A2s":[0.5717,0.33545,0.418175,0.479925,0.519325],"A3o":[0.557125,0.30215,0.385425,0.452925,0.501125],"A3s":[0.581,0.334025,0.418775,0.477825,0.523575],"A4o":[0.5665,0.299825,0.38505,0.457975,0.50715],"A4s":[0.588,0.3418,0.41695,0.4952,0.533875],"A5o":[0.5758,0.302825,0.3902,0.470375,0.511925],"A5s":[0.60625,0.3468,0.424675,0.49845,0.548825],"A6o":[0.5836,0.303475,0.3874,0.474725,0.513075],"A6s":[0.596625,0.32805,0.4234,0.50335,0.547075],"A7o":[0.5863,0.298775,0.41205,0.4932,0.531425],"A7s":[0.611775,0.3353,0.444775,0.5199,0.558375],"A8o":[0.599225,0.30575,0.43835,0.517825,0.54795],"A8s":[0.6194,0.348175,0.466275,0.542175,0.567275],"A9o":[0.60575,0.325075,0.469075,0.543525,0.56645],"A9s":[0.624175,0.3624,0.494375,0.56005,0.583325],"AA":[0.846125,0.844125,0.85985,0.8598,0.8547],"AJo":[0.639825,0.43555,0.553525,0.598825,0.6096],"AJs":[0.65305,0.45565,0.5728,0.6124,0.633175],"AKo":[0.65245,0.561525,0.632825,0.65595,0.658975],"AKs":[0.671575,0.5788,0.6499,0.671775,0.66935],"AQo":[0.6445,0.495975,0.580925,0.624025,0.634425],"AQs":[0.6659,0.515475,0.599175,0.641275,0.651225],"ATo":[0.62745,0.368375,0.517025,0.574425,0.602425],"ATs":[0.6445,0.4033,0.536,0.595775,0.61355],"J2o":[0.43925,0.259925,0.298275,0.313675,0.328775],"J2s":[0.472225,0.301375,0.334775,0.351275,0.364225],"J3o":[0.445225,0.267225,0.30015,0.315325,0.3345],"J3s":[0.491875,0.306375,0.33855,0.3479,0.371225],"J4o":[0.467025,0.272825,0.30295,0.3164,0.339175],"J4s":[0.483225,0.31035,0.341925,0.349525,0.37585],"J5o":[0.474725,0.271175,0.30365,0.32265,0.338075],"J5s":[0.5055,0.313725,0.34365,0.3608,0.380075],"J6o":[0.476775,0.273225,0.30335,0.326125,0.35185],"J6s":[0.505575,0.31135,0.336825,0.36365,0.38885],"J7o":[0.49725,0.285325,0.323725,0.339075,0.36755],"J7s":[0.519675,0.3285,0.355,0.37285,0.40245],"J8o":[0.517325,0.305275,0.333375,0.353775,0.38355],"J8s":[0.541625,0.335275,0.368575,0.39045,0.418775],"J9o":[0.535375,0.31555,0.35165,0.3678,0.40165],"J9s":[0.55465,0.352775,0.38235,0.4,0.43605],"JJ":[0.77405,0.598275,0.649875,0.678675,0.707975],"JTo":[0.5576,0.3316,0.36635,0.396075,0.435075],"JTs":[0.577525,0.3658,0.398725,0.420625,0.46585],"K2o":[0.49885,0.285725,0.3039,0.3598,0.402725],"K2s":[0.536275,0.32515,0.34975,0.396875,0.4432],"K3o":[0.51365,0.2944,0.314425,0.36195,0.420875],"K3s":[0.54445,0.324175,0.345925,0.389675,0.447],"K4o":[0.523725,0.29325,0.313825,0.36575,0.424525],"K4s":[0.544375,0.33245,0.350575,0.40365,0.454775],"K5o":[0.5311,0.300425,0.317125,0.37045,0.43585],"K5s":[0.553675,0.333725,0.356475,0.40925,0.459625],"K6o":[0.5398,0.28815,0.312975,0.381625,0.447825],"K6s":[0.56665,0.338,0.357575,0.418875,0.478525],"K7o":[0.549025,0.301825,0.322375,0.3966,0.458875],"K7s":[0.57655,0.336125,0.356075,0.427275,0.48425],"K8o":[0.5542,0.30215,0.325275,0.399325,0.4681],"K8s":[0.582275,0.34225,0.364625,0.44005,0.506425],"K9o":[0.579225,0.321775,0.345575,0.436775,0.498875],"K9s":[0.599675,0.35765,0.382775,0.4683,0.523275],"KJo":[0.603225,0.3429,0.41085,0.491675,0.54395],"KJs":[0.620525,0.377675,0.4441,0.517225,0.560475],"KK":[0.82305,0.717525,0.735975,0.773375,0.7928],"KQo":[0.613325,0.369075,0.442125,0.5044,0.567425],"KQs":[0.63495,0.39925,0.466775,0.531725,0.583725],"KTo":[0.5996,0.33355,0.378225,0.47305,0.530675],"KTs":[0.615275,0.365525,0.415875,0.4995,0.553475],"Q2o":[0.475475,0.2719,0.3062,0.32515,0.35465],"Q2s":[0.504975,0.311925,0.3409,0.3551,0.392925],"Q3o":[0.482,0.27815,0.3009,0.33195,0.364925],"Q3s":[0.510425,0.31635,0.34325,0.360425,0.3987],"Q4o":[0.49845,0.2901,0.30795,0.335825,0.369525],"Q4s":[0.5182,0.32035,0.3472,0.3669,0.4046],"Q5o":[0.504325,0.286225,0.314425,0.33985,0.3757],"Q5s":[0.52655,0.32255,0.347725,0.373,0.411475],"Q6o":[0.5133,0.287675,0.310125,0.342375,0.384825],"Q6s":[0.527925,0.3222,0.345175,0.379675,0.41595],"Q7o":[0.5153,0.286825,0.316325,0.3421,0.3841],"Q7s":[0.541575,0.331125,0.350025,0.378575,0.42555],"Q8o":[0.53895,0.305675,0.32745,0.3602,0.42485],"Q8s":[0.5634,0.342575,0.3713,0.398925,0.443275],"Q9o":[0.551175,0.3195,0.3453,0.38825,0.44445],"Q9s":[0.574325,0.3579,0.373425,0.418675,0.4746],"QJo":[0.578175,0.336575,0.370775,0.434925,0.481775],"QJs":[0.605125,0.37415,0.41275,0.466925,0.512625],"QQ":[0.799775,0.659625,0.687875,0.716775,0.7474],"QTo":[0.57335,0.33315,0.366225,0.416325,0.47135],"QTs":[0.594375,0.367975,0.394175,0.452425,0.500225],"T2o":[0.416525,0.2577,0.29255,0.303375,0.316475],"T2s":[0.452675,0.2969,0.329925,0.343675,0.35615],"T3o":[0.41955,0.25865,0.295475,0.312775,0.32475],"T3s":[0.456,0.292625,0.3277,0.347,0.359],"T4o":[0.439975,0.26515,0.297175,0.31,0.3323],"T4s":[0.469725,0.302525,0.3345,0.3485,0.36335],"T5o":[0.449425,0.26315,0.30565,0.315275,0.33455],"T5s":[0.46935,0.2982,0.335275,0.359325,0.35945],"T6o":[0.4576,0.281225,0.30455,0.33755,0.34695],"T6s":[0.49285,0.310125,0.343475,0.36815,0.38075],"T7o":[0.479125,0.292275,0.31995,0.3504,0.35635],"T7s":[0.5101,0.32285,0.360975,0.374375,0.40185],"T8o":[0.497175,0.312625,0.34435,0.364525,0.380375],"T8s":[0.5195,0.34525,0.3744,0.389825,0.4084],"T9o":[0.517525,0.323475,0.353725,0.37175,0.3964],"T9s":[0.5357,0.3549,0.3894,0.4057,0.4218],"TT":[0.748825,0.549375,0.613275,0.646225,0.67515]},"rankedHands":[[67.0,"AA",6],[64.5,"KK",6],[62.0,"QQ",6],[59.5,"JJ",6],[57.0,"TT",6],[54.5,"99",6],[52.0,"88",6],[49.5,"77",6],[47.0,"66",6],[45.5,"AKs",4],[44.5,"55",6],[43.0,"AQs",4],[42.5,"KQs",4],[42.5,"AKo",12],[42.0,"AJs",4],[42.0,"44",6],[41.0,"ATs",4],[40.0,"KJs",4],[40.0,"AQo",12],[40.0,"A9s",4],[39.5,"QJs",4],[39.5,"KQo",12],[39.5,"33",6],[39.0,"KTs",4],[39.0,"AJo",12],[39.0,"A8s",4],[38.0,"K9s",4],[38.0,"ATo",12],[38.0,"A7s",4],[37.0,"QTs",4],[37.0,"KJo",12],[37.0,"K8s",4],[37.0,"A9o",12],[37.0,"A6s",4],[37.0,"22",6],[36.5,"QJo",12],[36.5,"JTs",4],[36.0,"Q9s",4],[36.0,"KTo",12],[36.0,"K7s",4],[36.0,"A8o",12],[36.0,"A5s",4],[35.0,"Q8s",4],[35.0,"K9o",12],[35.0,"K6s",4],[35.0,"A7o",12],[35.0,"A4s",4],[34.0,"QTo",12],[34.0,"Q7s",4],[34.0,"K8o",12],[34.0,"K5s",4],[34.0,"J9s",4],[34.0,"A6o",12],[34.0,"A3s",4],[33.5,"T9s",4],[33.5,"JTo",12],[33.0,"Q9o",12],[33.0,"Q6s",4],[33.0,"K7o",12],[33.0,"K4s",4],[33.0,"J8s",4],[33.0,"A5o",12],[33.0,"A2s",4],[32.0,"Q8o",12],[32.0,"Q5s",4],[32.0,"K6o",12],[32.0,"K3s",4],[32.0,"J7s",4],[32.0,"A4o",12],[31.0,"T8s",4],[31.0,"Q7o",12],[31.0,"Q4s",4],[31.0,"K5o",12],[31.0,"K2s",4],[31.0,"J9o",12],[31.0,"J6s",4],[31.0,"A3o",12],[30.5,"T9o",12],[30.5,"98s",4],[30.0,"T7s",4],[30.0,"Q6o",12],[30.0,"Q3s",4],[30.0,"K4o",12],[30.0,"J8o",12],[30.0,"J5s",4],[30.0,"A2o",12],[29.0,"T6s",4],[29.0,"Q5o",12],[29.0,"Q2s",4],[29.0,"K3o",12],[29.0,"J7o",12],[29.0,"J4s",4],[28.0,"T8o",12],[28.0,"T5s",4],[28.0,"Q4o",12],[28.0,"K2o",12],[28.0,"J6o",12],[28.0,"J3s",4],[28.0,"97s",4],[27.5,"98o",12],[27.5,"87s",4],[27.0,"T7o",12],[27.0,"T4s",4],[27.0,"Q3o",12],[27.0,"J5o",12],[27.0,"J2s",4],[27.0,"96s",4],[26.0,"T6o",12],[26.0,"T3s",4],[26.0,"Q2o",12],[26.0,"J4o",12],[26.0,"95s",4],[25.0,"T5o",12],[25.0,"T2s",4],[25.0,"J3o",12],[25.0,"97o",12],[25.0,"94s",4],[25.0,"86s",4],[24.5,"87o",12],[24.5,"76s",4],[24.0,"T4o",12],[24.0,"J2o",12],[24.0,"96o",12],[24.0,"93s",4],[24.0,"85s",4],[23.0,"T3o",12],[23.0,"95o",12],[23.0,"92s",4],[23.0,"84s",4],[22.0,"T2o",12],[22.0,"94o",12],[22.0,"86o",12],[22.0,"83s",4],[22.0,"75s",4],[21.5,"76o",12],[21.5,"65s",4],[21.0,"93o",12],[21.0,"85o",12],[21.0,"82s",4],[21.0,"74s",4],[20.0,"92o",12],[20.0,"84o",12],[20.0,"73s",4],[19.0,"83o",12],[19.0,"75o",12],[19.0,"72s",4],[19.0,"64s",4],[18.5,"65o",12],[18.5,"54s",4],[18.0,"82o",12],[18.0,"74o",12],[18.0,"63s",4],[17.0,"73o",12],[17.0,"62s",4],[16.0,"72o",12],[16.0,"64o",12],[16.0,"53s",4],[15.5,"54o",12],[15.5,"43s",4],[15.0,"63o",12],[15.0,"52s",4],[14.0,"62o",12],[13.0,"53o",12],[13.0,"42s",4],[12.5,"43o",12],[12.5,"32s",4],[12.0,"52o",12],[10.0,"42o",12],[9.5,"32o",12]],"positionOpen":{"early":["88","99","AA","AJs","AKo","AKs","AQo","AQs","JJ","KK","KQs","QQ","TT"],"cutoff":["22","33","44","55","66","76s","77","87s","88","98s","99","A2s","A3s","A4s","A5s","A6s","A7s","A8s","A9s","AA","AJo","AJs","AKo","AKs","AQo","AQs","ATo","ATs","J9s","JJ","JTs","K9s","KJo","KJs","KK","KQo","KQs","KTo","KTs","Q9s","QJo","QJs","QQ","QTs","T9s","TT"],"button":["22","33","44","54s","55","65s","66","75s","76s","77","86s","87s","88","97s","98s","99","A2o","A2s","A3o","A3s","A4o","A4s","A5o","A5s","A6o","A6s","A7o","A7s","A8o","A8s","A9o","A9s","AA","AJo","AJs","AKo","AKs","AQo","AQs","ATo","ATs","J8s","J9s","JJ","JTo","JTs","K2s","K3s","K4s","K5s","K6s","K7s","K8o","K8s","K9o","K9s","KJo","KJs","KK","KQo","KQs","KTo","KTs","Q8s","Q9s","QJo","QJs","QQ","QTo","QTs","T8s","T9o","T9s","TT"],"small_blind":["22","33","44","53s","54s","55","64s","65s","66","75s","76o","76s","77","85s","86s","87o","87s","88","96s","97s","98o","98s","99","A2o","A2s","A3o","A3s","A4o","A4s","A5o","A5s","A6o","A6s","A7o","A7s","A8o","A8s","A9o","A9s","AA","AJo","AJs","AKo","AKs","AQo","AQs","ATo","ATs","J7s","J8s","J9o","J9s","JJ","JTo","JTs","K2s","K3s","K4s","K5o","K5s","K6o","K6s","K7o","K7s","K8o","K8s","K9o","K9s","KJo","KJs","KK","KQo","KQs","KTo","KTs","Q7s","Q8o","Q8s","Q9o","Q9s","QJo","QJs","QQ","QTo","QTs","T7s","T8o","T8s","T9o","T9s","TT"],"big_blind":["22","33","44","54s","55","65s","66","75s","76s","77","86s","87s","88","97s","98s","99","A2o","A2s","A3o","A3s","A4o","A4s","A5o","A5s","A6o","A6s","A7o","A7s","A8o","A8s","A9o","A9s","AA","AJo","AJs","AKo","AKs","AQo","AQs","ATo","ATs","J8s","J9s","JJ","JTo","JTs","K2s","K3s","K4s","K5s","K6s","K7s","K8o","K8s","K9o","K9s","KJo","KJs","KK","KQo","KQs","KTo","KTs","Q8s","Q9s","QJo","QJs","QQ","QTo","QTs","T8s","T9o","T9s","TT"]},"randomState":[2147483648,766982754,497961170,3952298588,2331775348,1811986599,3100132149,3188119873,3937547222,215718963,3315684082,2978012849,2428261856,1298227695,1704729580,54668373,3285201915,3285178464,1552935063,988471319,3135387943,1691402966,2757551880,416056905,907387413,1072924981,33903495,2168419592,2429050353,831159753,430343641,3315943586,1761671042,864453023,334804929,1627478028,2596811275,3468733638,3994375553,1457139722,3139722021,1334790738,2656639915,3535811098,1464315470,2397423927,885719490,1140895889,3284299483,2854516462,2734973817,147484763,792049954,114360641,3345458839,1159898878,1410498733,2242989638,453922141,1344019764,413870456,3089405849,1494382840,470157779,4266372830,2831181573,1361928602,1589253513,1381373062,753045124,987032420,781978839,2953638767,3258570111,3006718191,1675218601,1854232715,3655829819,1731242722,2192104666,1736665161,740150002,1195833394,1610203160,159492766,4041488705,3128952632,2867295744,3272632449,886824304,1791482600,221114776,3867175393,4020804062,1077871826,1298953503,996366221,4149754679,2483052703,2615558283,274318093,1716359450,4099129961,1026774175,288240973,1459347562,2365566296,3690105224,3065780221,2050634722,2652606621,3185241207,3026457375,3456165734,1880121515,3398461093,1795638629,2379692076,608668379,1261955525,84456522,1913485156,106878280,757183891,2913957588,160418091,2025664758,141497907,1657818026,3053760160,672193054,4157546743,223046484,1623470498,1201972930,675008814,684162366,1738776330,3025656654,159760723,1908867305,3933381342,2545706671,467196949,1427819885,842150314,4032903454,2140851898,3269883445,975813755,4177392955,1556690684,2535611513,462962732,67591358,1729610528,2025206740,3153739740,3255032049,4186226368,1070144624,3107867195,1621006038,63742485,835629717,3189842019,3950227584,3184714559,841836938,1685394870,657939920,766156242,1412314179,1048281639,4037161120,2044490307,1923947830,3900790422,907554295,276417304,860658646,3574201134,3508771399,2110232300,1636296241,1405006077,1093408401,3243057343,1519791182,1994660136,3829840937,2644974199,957955566,3487641161,1646922510,1907939989,3836029453,3429168778,201307778,72550089,2464394982,1695794191,3344785682,996786130,3589457196,1241754792,1291082245,4224603667,1194379475,2693491244,881186965,2705535111,445306946,440274268,1980827733,2482488861,3205215943,2119332222,2928713046,1418736938,652581136,2474070665,2208621536,4171251876,2303664214,443762656,2981912989,2199228311,2652261633,3166738494,3443009210,3498764432,424010848,4065487566,2262993542,1756076712,1477098233,2742171915,306185806,3610666541,923091830,1034267993,2336668648,1880719718,676878038,3788797208,3763351494,3985428106,1101865631,1130501258,3672967388,3432003530,4124438011,1660392285,4025484827,2108074566,3815409682,42955331,3248965569,1643835718,1246665668,1071162194,3814069229,115491158,985096811,3311029186,2990827378,3101633320,1648574497,1470117052,174145027,2019894819,2035501481,459104123,3507464599,2093352659,3369174406,618767835,4009895756,935587447,3956987426,33753995,307782427,2473424805,1440371818,2382619594,2138695812,3164510238,1318650933,2910086616,3886677510,566832801,3718063320,1559818704,183047272,1142362855,26306548,645536402,3875596208,2272778168,3512733409,1897046338,38248886,2570759766,1806313150,860304898,2433450338,4124013408,1216634590,1275388896,1169566669,652504502,761221427,1448403764,3129135949,2513214949,1269533687,2413509541,1226750363,2450740925,4094137910,945759293,3636927736,3178020081,2509964157,3878869300,1848504895,2018369720,1579755740,1023627943,924838836,2653160914,1812804174,1521323076,4012390528,1338763317,2608655937,16022784,1672945066,2177189646,2944458483,2213810972,1369873847,1224017670,130901785,3595066712,2259115284,3316038259,455873927,2917250465,3599550610,1502173758,684943436,3079863840,3144992244,942855823,1771140188,2118780653,3411494225,2711180217,4239611184,1371891067,3398566397,3105518599,1310665701,3345178451,2959821156,242241789,2148966880,3192740583,404401893,3605380577,1446464038,3920522056,2577523013,1079274576,286634372,1752710796,2351075979,981312309,3410516352,3468455736,1938779182,1592494371,1533303080,88045436,438252489,1220512168,3487004938,3724852871,1073434882,3728218947,2977555283,4105408406,3553772656,1462006821,3917158017,119003006,3470530198,3439192457,2829375771,3555715155,32324691,588735808,1459221702,803072782,2699519868,1530797005,79738580,671990400,4289511388,3207115447,2584684068,832698998,760958416,1217440464,2517898131,2418819938,3629956222,3445024962,206619378,365007395,522114139,1707954431,540423623,1786750801,369253262,4239016754,147889201,1637777773,236798285,2806120188,586972608,2201782716,1323327827,819485723,406078680,3407345698,1537169369,1821691865,527271655,3751827102,1465426495,3321682429,2179672664,401355478,1068871880,24609462,1403522408,2311580015,1532058170,3877815340,1768430711,1619755157,2832904331,475102697,354987331,3295386430,2816873951,1039415736,363972779,1499307670,2895506264,3746345349,2678027234,3251899088,955392878,2329157295,1343358773,309573887,2410178377,2843173466,361132917,1755816798,1319204283,609284796,1998842567,1892325921,223190385,1483015769,2876023365,3876009312,3199738344,491524099,160383137,1219178873,3870310498,1114580266,4279604166,855339774,1983818547,2297848784,4118592947,4084409863,2225095054,4215601993,946447434,4205503762,146088676,778046685,1876936928,3157333726,2173097090,3215738813,4135448234,1219619643,1936128689,2897130162,3336043946,3779039524,4200886837,1359380925,3402593091,3140713935,50855190,3122065768,1501584468,2512255124,687125154,2666013386,837819715,3057258172,3653455791,2868624990,322131992,42534870,4036564806,798099710,3533853670,190914037,3726947981,2601169403,602059656,1365668439,1918780004,394790500,277566007,3891847777,3365421094,3139612253,1380519090,1183088424,4203794803,3049949521,4214159484,3446206962,1875544460,3207220027,3288287026,913535288,178159620,1410694581,4190575040,880731713,1427805121,404869072,3413191414,2865934056,2899472677,4239222733,688404529,3923323887,933651074,1199453686,642723732,2850614853,3104368451,3054041024,3129913503,2805843726,1829781129,3479062313,650272704,4224852052,4085038685,2616580676,1793860711,585126334,2995262791,520446536,3855655015,1571815563,2240778227,2051010344,1694977983,788402852,1988089041,2035558649,1800063056,1234412692,2490862867,417320514,2415019489,3374117797,136034611,898704236,1247106941,3923519397,3563607190,2454738671,3522360389,2672645476,146828884,3985140042,4233949333,1184742586,860278824,2815489967,983483427,3190081845,3288865305,3575181235,1292151129,4007823805,4049420597,3499391972,1611182906,1721268432,2944249577,2487212557,789127738,4027610014,1057334138,2902720905,624]};
+  // END GENERATED PYTHON DATA
+
+  const C = DATA.constants;
+  const EQUITY = DATA.equity;
+  const RANKED_HANDS = DATA.rankedHands;
+  const RANKS = C.RANKS;
+  const SUITS = "cdhs";
+  const CARD_NAMES = [...RANKS].flatMap(rank => [...SUITS].map(suit => rank + suit));
+  const VALID_CARDS = new Set(CARD_NAMES);
+  const own = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
+  const get = (object, key, fallback = null) => own(object, key) ? object[key] : fallback;
+  const isDict = value => value !== null && typeof value === "object" &&
+    (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+  const isInt = value => typeof value === "number" && Number.isInteger(value);
+  const boundedInt = value => isInt(value) && value >= 0 && value < 2 ** C.MAX_INTEGER_BITS;
+  const has = (legal, action) => legal instanceof Set ? legal.has(action) : legal.includes(action);
+  // Python truthiness matters for optional metadata and empty contribution maps.
+  const truth = value => {
+    if (value == null || value === false || value === 0 || value === "") return false;
+    if (Array.isArray(value) || typeof value === "string") return value.length !== 0;
+    if (value instanceof Set) return value.size !== 0;
+    if (isDict(value)) return Object.keys(value).length !== 0;
+    return true;
+  };
+  const rankOf = card => RANKS.indexOf(card[0]) + 2;
+  const suitOf = card => SUITS.indexOf(card[1]);
+  const sum = values => values.reduce((total, value) => total + value, 0);
+  const countBits = value => {
+    let count = 0;
+    for (; value; value &= value - 1) count++;
+    return count;
+  };
+
+  /** CPython Random(0): exported init state, MT19937, and its exact 53-bit random(). */
+  class PythonRandom {
+    constructor() {
+      this.state = Uint32Array.from(DATA.randomState.slice(0, 624));
+      this.index = DATA.randomState[624];
+    }
+
+    uint32() {
+      const mt = this.state;
+      if (this.index >= 624) {
+        // Deliberately in-place: the wraparound uses newly twisted words, as in CPython.
+        for (let i = 0; i < 624; i++) {
+          const y = (mt[i] & 0x80000000) | (mt[(i + 1) % 624] & 0x7fffffff);
+          mt[i] = mt[(i + 397) % 624] ^ (y >>> 1) ^ ((y & 1) ? 0x9908b0df : 0);
+        }
+        this.index = 0;
+      }
+      let y = mt[this.index++];
+      y ^= y >>> 11;
+      y ^= (y << 7) & 0x9d2c5680;
+      y ^= (y << 15) & 0xefc60000;
+      y ^= y >>> 18;
+      return y >>> 0;
+    }
+
+    random() {
+      const a = this.uint32() >>> 5;
+      const b = this.uint32() >>> 6;
+      return (a * 67108864 + b) / 9007199254740992;
+    }
+  }
+
+  function validCards(state) {
+    const cards = state.hole_cards, board = state.board;
+    if (!Array.isArray(cards) || cards.length !== 2 || !Array.isArray(board) ||
+        ![0, 3, 4, 5].includes(board.length)) return false;
+    // The Python validator intentionally does not check card uniqueness.
+    return [...cards, ...board].every(card => typeof card === "string" &&
+      card.length === 2 && VALID_CARDS.has(card));
+  }
+
+  function boundedState(state) {
+    if (!isDict(state) || !validCards(state)) return false;
+    const stacks = state.stacks;
+    if (!isDict(stacks)) return false;
+    const names = Object.keys(stacks);
+    if (names.length < 1 || names.length > C.MAX_PLAYERS || !own(stacks, "my_bot")) return false;
+    if (names.some(name => [...name].length > C.MAX_ID_LENGTH || !boundedInt(stacks[name]))) return false;
+    if (!isDict(state.blinds) || !boundedInt(state.blinds.big) || state.blinds.big <= 0) return false;
+    for (const field of ["pot", "amount_to_call", "min_raise_to", "max_raise_to"]) {
+      if (!boundedInt(state[field])) return false;
+    }
+    const count = get(state, "players_remaining");
+    if (count !== null && (!isInt(count) || count < 1 || count > C.MAX_PLAYERS)) return false;
+    for (const field of ["street_contributions", "total_contributions", "starting_stacks"]) {
+      const values = get(state, field, {});
+      if (!isDict(values) || Object.keys(values).length > C.MAX_PLAYERS ||
+          Object.values(values).some(value => !boundedInt(value))) return false;
+    }
+    const active = get(state, "active_players");
+    if (active !== null && (!Array.isArray(active) || active.length > C.MAX_PLAYERS ||
+        active.some(name => typeof name !== "string" || !own(stacks, name)))) return false;
+    return true;
+  }
+
+  function safeAction(bot, state) {
+    let fallback = "fold";
+    const useFallback = reason => {
+      bot.reason = `${reason} Using the available ${typeof fallback === "string" ? fallback : "minimum raise"}.`;
+      return fallback;
+    };
+    try {
+      bot.reason = "";
+      if (!isDict(state)) return useFallback("The state is not a plain object.");
+      const legal = state.legal_actions;
+      if ((!Array.isArray(legal) && !(legal instanceof Set)) ||
+          (legal instanceof Set ? legal.size : legal.length) > C.MAX_LEGAL_ACTIONS) {
+        return useFallback("The legal-action list is missing or exceeds the input limit.");
+      }
+      const check = has(legal, "check"), fold = has(legal, "fold"), call = has(legal, "call");
+      const minimum = state.min_raise_to, maximum = state.max_raise_to;
+      const raiseOK = has(legal, "raise") && isInt(minimum) && isInt(maximum) &&
+        0 < minimum && minimum <= maximum;
+      if (check) fallback = "check";
+      else if (fold) fallback = "fold";
+      else if (call) fallback = "call";
+      else if (raiseOK) fallback = {action: "raise", amount: minimum};
+      else return useFallback("No supported legal action was supplied; fold is the safety sentinel.");
+      if (!boundedState(state)) return useFallback("The cards or public state failed validation.");
+      const action = bot._choose_action(state);
+      if (typeof action === "string" && ((action === "check" && check) ||
+          (action === "fold" && fold) || (action === "call" && call))) return action;
+      if (isDict(action) && raiseOK && action.action === "raise" && isInt(action.amount) &&
+          minimum <= action.amount && action.amount <= maximum) return action;
+      return useFallback("The strategy's preferred action is outside the legal actions or raise bounds.");
+    } catch (_) {
+      return useFallback("The state could not be processed safely.");
+    }
+  }
+
+  function straightHigh(mask) {
+    mask |= (mask >>> 13) & 2;
+    const runs = mask & (mask >>> 1) & (mask >>> 2) & (mask >>> 3) & (mask >>> 4);
+    return runs ? 32 - Math.clz32(runs) + 3 : 0;
+  }
+
+  function scoreIds(cards) {
+    const counts = Array(15).fill(0), suits = Array(4).fill(0), masks = Array(4).fill(0);
+    let mask = 0;
+    for (const [rank, suit] of cards) {
+      counts[rank]++;
+      suits[suit]++;
+      masks[suit] |= 1 << rank;
+      mask |= 1 << rank;
+    }
+    const flushSuit = suits.findIndex(count => count >= 5);
+    const flush = flushSuit < 0 ? 0 : masks[flushSuit];
+    if (flush && straightHigh(flush)) return [8, straightHigh(flush)];
+    const ranks = [];
+    for (let rank = 14; rank >= 2; rank--) if (counts[rank]) ranks.push(rank);
+    const quads = ranks.filter(rank => counts[rank] === 4);
+    // Python next(...) raises on impossible duplicate-card combinations with no kicker.
+    const first = values => {
+      if (!values.length) throw new Error("No kicker available");
+      return values[0];
+    };
+    if (quads.length) return [7, quads[0], first(ranks.filter(rank => rank !== quads[0]))];
+    const trips = ranks.filter(rank => counts[rank] >= 3);
+    const pairs = ranks.filter(rank => counts[rank] >= 2);
+    if (trips.length && pairs.length > 1) return [6, trips[0], first(pairs.filter(rank => rank !== trips[0]))];
+    if (flush) return [5, ...ranks.filter(rank => flush & (1 << rank)).slice(0, 5)];
+    const high = straightHigh(mask);
+    if (high) return [4, high];
+    if (trips.length) return [3, trips[0], ...ranks.filter(rank => rank !== trips[0]).slice(0, 2)];
+    if (pairs.length >= 2) return [2, ...pairs.slice(0, 2), first(ranks.filter(rank => !pairs.slice(0, 2).includes(rank)))];
+    if (pairs.length) return [1, pairs[0], ...ranks.filter(rank => rank !== pairs[0]).slice(0, 3)];
+    return [0, ...ranks.slice(0, 5)];
+  }
+
+  function score(cards) {
+    return scoreIds(cards.map(card => {
+      if (!VALID_CARDS.has(card)) throw new Error("Invalid card");
+      return [rankOf(card), suitOf(card)];
+    }));
+  }
+
+  function compareScores(a, b) {
+    for (let i = 0; i < Math.min(a.length, b.length); i++) {
+      if (a[i] !== b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return Math.sign(a.length - b.length);
+  }
+
+  // Separate from score(): Python's category helper also accepts short boards.
+  function category(cards) {
+    const counts = Array(15).fill(0), suits = Array(4).fill(0), masks = Array(4).fill(0);
+    let mask = 0, pairs = 0, triples = 0, quads = false;
+    for (const card of cards) {
+      if (!VALID_CARDS.has(card)) throw new Error("Invalid card");
+      const rank = rankOf(card), suit = suitOf(card), bit = 1 << rank;
+      mask |= bit;
+      const count = ++counts[rank];
+      if (count === 2) pairs++;
+      else if (count === 3) triples++;
+      else if (count === 4) quads = true;
+      suits[suit]++;
+      masks[suit] |= bit;
+    }
+    let flush = false;
+    for (let suit = 0; suit < 4; suit++) {
+      if (suits[suit] >= 5) {
+        flush = true;
+        if (straightHigh(masks[suit])) return 8;
+      }
+    }
+    if (quads) return 7;
+    if (triples && pairs >= 2) return 6;
+    if (flush) return 5;
+    if (straightHigh(mask)) return 4;
+    if (triples) return 3;
+    return pairs >= 2 ? 2 : pairs ? 1 : 0;
+  }
+
+  function strength(state) {
+    const cards = state.hole_cards, board = state.board;
+    if (!board.length) throw new Error("strength requires a postflop board");
+    const combined = [...cards, ...board], handScore = score(combined);
+    const handCategory = handScore[0], boardCategory = category(board);
+    const ranks = cards.map(rankOf), boardRanks = board.map(rankOf);
+    const top = Math.max(...boardRanks), pocketPair = ranks[0] === ranks[1];
+    const topPair = ranks.includes(top) && !pocketPair;
+    const overpair = pocketPair && ranks[0] > top;
+    const kicker = ranks[0] === top ? ranks[1] : ranks[0];
+    const goodTop = topPair && kicker >= C.POST_GOOD_KICKER;
+    const boardSuitCounts = [...SUITS].map(suit => board.filter(card => card[1] === suit).length);
+    const fourFlush = Math.max(...boardSuitCounts) >= 4;
+    const improved = board.length === 5 ? compareScores(handScore, score(board)) > 0 : handCategory > boardCategory;
+    const realTwoPair = handCategory === 2 && boardCategory < 2 &&
+      !(pocketPair && new Set(boardRanks).size < boardRanks.length);
+    const strongPair = (overpair || goodTop) && !fourFlush;
+    if (handCategory === 5 && fourFlush) {
+      const suit = SUITS[boardSuitCounts.indexOf(Math.max(...boardSuitCounts))];
+      const highFlush = Math.max(0, ...cards.filter(card => card[1] === suit).map(rankOf));
+      if (highFlush < C.POST_GOOD_KICKER) return [2, C.POST_TOP_PAIR_EQUITY];
+    }
+    if (improved && handCategory >= 4 && !(fourFlush && handCategory === 4)) return [4, C.POST_VERY_STRONG_EQUITY];
+    if (improved && ((handCategory === 3 && boardCategory < 3) || realTwoPair)) return [3, C.POST_TWO_PAIR_EQUITY];
+    if (strongPair) return [3, C.POST_STRONG_EQUITY];
+    if ((improved && handCategory >= 1) || topPair || overpair) {
+      return [2, topPair || overpair ? C.POST_TOP_PAIR_EQUITY : C.POST_MEDIUM_EQUITY];
+    }
+    if (board.length < 5) {
+      const flushDraw = cards.some(card => combined.filter(other => other[1] === card[1]).length === 4);
+      let boardMask = 0, holeMask = 0;
+      for (const rank of boardRanks) boardMask |= 1 << rank;
+      for (const rank of ranks) holeMask |= 1 << rank;
+      let mask = boardMask | holeMask;
+      mask |= (mask >>> 13) & 2;
+      holeMask |= (holeMask >>> 13) & 2;
+      boardMask |= (boardMask >>> 13) & 2;
+      let missing = 0;
+      for (const window of C.STRAIGHT_DRAW_MASKS) {
+        if (countBits(mask & window) === 4 && (window & holeMask & ~boardMask)) missing |= window & ~mask;
+      }
+      let outs = (flushDraw ? 9 : 0) + 4 * countBits(missing);
+      if (flushDraw && missing) outs -= 2;
+      if (outs) {
+        const value = board.length === 3 ? C.DRAW_FLOP_OUT_VALUE : C.DRAW_TURN_OUT_VALUE;
+        return [1, Math.min(C.MAX_DRAW_EQUITY, outs * value)];
+      }
+    }
+    return [0, C.POST_NOTHING_EQUITY];
+  }
+
+  function handRange(fraction) {
+    let target = Math.max(C.MIN_RANGE, Math.min(C.MAX_RANGE, fraction)) * 1326;
+    const hands = new Set();
+    for (const [, hand, combinations] of RANKED_HANDS) {
+      if (target <= 0) break;
+      hands.add(hand);
+      target -= combinations;
+    }
+    return hands;
+  }
+
+  const POSITION_OPEN = Object.fromEntries(Object.entries(DATA.positionOpen).map(([key, hands]) => [key, new Set(hands)]));
+  const SHOVE = Object.create(null), CALL = Object.create(null);
+  for (let bb = 1; bb <= 15; bb++) {
+    for (let behind = 0; behind < 8; behind++) {
+      CALL[[bb, behind]] = handRange(C.CALL_FRACTIONS[bb - 1] - behind * C.BEHIND_PENALTY / C.CHART_CALL_BEHIND_DIVISOR);
+      for (const position of C.POSITIONS) {
+        SHOVE[[bb, position, behind]] = handRange(C.SHOVE_FRACTIONS[bb - 1] +
+          C.POSITION_BONUS[position] - Math.max(0, behind - 1) * C.BEHIND_PENALTY);
+      }
+    }
+  }
+
+  function buildPreflopFeatures(cards) {
+    const [high, low] = cards.map(rankOf).sort((a, b) => b - a);
+    const suited = cards[0][1] === cards[1][1], pair = high === low;
+    const key = RANKS[high - 2] + RANKS[low - 2] + (pair ? "" : suited ? "s" : "o");
+    const premium = (pair && high >= C.PREMIUM_PAIR_MIN) || (high === 14 && low === 13);
+    const strong = premium || (pair && high >= C.STRONG_PAIR_MIN) ||
+      (high === 14 && low >= C.STRONG_ACE_KICKER) || (high === 13 && low === 12);
+    const steal = pair || high === 14 || (high === 13 && low >= C.STEAL_KING_KICKER);
+    const defend = pair || high >= 12 || (suited && high - low <= 2);
+    return {key, premium, strong, steal, defend, equity: EQUITY[key]};
+  }
+  const PREFLOP_FEATURES = Object.create(null);
+  for (const a of CARD_NAMES) for (const b of CARD_NAMES) PREFLOP_FEATURES[[a, b]] = buildPreflopFeatures([a, b]);
+  const preflopFeatures = cards => PREFLOP_FEATURES[[cards[0], cards[1]]];
+  const percentage = value => `${(value * 100).toFixed(1)}%`;
+  const positionName = position => position.replace(/_/g, " ");
+  const safeFor = state => has(state.legal_actions, "check") ? "check" : "fold";
+
+  class Bot {
+    constructor() {
+      this._rng = new PythonRandom();
+      this.reason = "";
+    }
+
+    getAction(state) { return safeAction(this, state); }
+    get_action(state) { return this.getAction(state); }
+
+    _explain(action, reason) {
+      this.reason = reason;
+      return action;
+    }
+
+    _choose_action(state) {
+      if (!state.board.length) {
+        const pricedCall = this._all_in_call(state);
+        if (pricedCall !== null) return pricedCall;
+        return this._stack_preflop(state);
+      }
+      return this._postflop(state);
+    }
+
+    _stack_preflop(state) {
+      const legal = state.legal_actions, safe = safeFor(state);
+      const features = preflopFeatures(state.hole_cards), hand = features.key, premium = features.premium;
+      let strong = features.strong;
+      const stacks = state.stacks, total = state.max_raise_to, stack = stacks.my_bot, bb = state.blinds.big;
+      const committed = total - stack, contributions = get(state, "street_contributions", {});
+      const active = get(state, "active_players", Object.keys(stacks));
+      const opponentTotals = active.filter(name => name !== "my_bot").map(name => stacks[name] + get(contributions, name, 0));
+      const opponentTotal = opponentTotals.length ? Math.max(...opponentTotals) : total;
+      const effective = Math.min(total, opponentTotal), depth = effective / bb, cost = state.amount_to_call;
+      let position = get(state, "position", "early");
+      if (!C.POSITIONS.includes(position)) position = "early";
+      const remaining = get(state, "players_remaining", Object.keys(stacks).length);
+      // Python evaluates the .get default expression even when the key is present.
+      if (remaining === null) throw new Error("players_remaining is null");
+      let behind = get(state, "players_left_to_act", Math.max(0, remaining - 1));
+      if (typeof behind === "boolean") behind = Number(behind);
+      if (typeof behind !== "number") throw new Error("Invalid players_left_to_act");
+      behind = Math.max(0, Math.min(7, behind));
+      const facingRaise = cost + committed > bb;
+      if (depth < C.PUSH_FOLD_BB) {
+        const bucket = Math.max(1, Math.min(C.PUSH_FOLD_BB, Math.trunc(depth) + 1));
+        const allowed = facingRaise ? CALL[[bucket, behind]] : SHOVE[[bucket, position, behind]];
+        const chart = `Short stack, ${depth.toFixed(1)} big blinds`;
+        if (!allowed.has(hand)) return this._explain(safe, `${chart}: this hand falls outside my ${facingRaise ? "calling" : "shoving"} range.`);
+        if (has(legal, "raise")) return this._explain({action: "raise", amount: total}, `${chart}: my position and hand qualify for an all-in.`);
+        return this._explain(has(legal, "call") ? "call" : safe, `${chart}: this hand is strong enough to continue.`);
+      }
+      const foldedTo = truth(get(state, "folded_to_me", false));
+      const steal = foldedTo && ["cutoff", "button"].includes(position) && features.steal;
+      if (!facingRaise && foldedTo) {
+        if (!POSITION_OPEN[position].has(hand)) return this._explain(safe, `This hand is outside my opening range from the ${positionName(position)}.`);
+        strong = true;
+      }
+      if (position === "big_blind" && facingRaise && !premium && cost <= C.BB_DEFEND_CALL_BB * bb &&
+          cost <= C.BB_DEFEND_STACK_FRACTION * stack && features.defend && has(legal, "call")) {
+        return this._explain("call", 'A small raise and a playable hand: defend the big blind at a low price.');
+      }
+      if (!strong && !steal) return this._explain(safe, 'This hand is too weak to build a pot from this position.');
+      let target, reason;
+      if (facingRaise) {
+        if (cost > C.BIG_RAISE_BB * bb && !premium) return this._explain(safe, 'The raise is too expensive to continue without a premium hand.');
+        if (premium && depth <= C.DEEP_STACK_BB) {
+          target = total;
+          reason = 'A premium hand and at most 40 big blinds in play: move all-in over the raise.';
+        } else if (depth > C.DEEP_STACK_BB && !premium) {
+          return this._explain(has(legal, "call") ? "call" : safe, 'Deep stacks and a good hand: call while keeping the pot under control.');
+        } else {
+          target = C.RERAISE_MULTIPLIER * (cost + committed);
+          reason = 'A strong enough hand to put pressure back on: re-raise to about three times the bet.';
+        }
+      } else {
+        const size = depth > C.DEEP_STACK_BB ? C.DEEP_OPEN_BB : C.MID_OPEN_BB;
+        target = Math.trunc(size * bb);
+        reason = `Opening from the ${positionName(position)}: a small raise of ${size} big blinds fits this stack depth.`;
+      }
+      if (!has(legal, "raise")) return this._explain(premium && has(legal, "call") ? "call" : safe,
+        `Raising is unavailable; ${premium ? 'continue with a premium hand' : 'avoid committing more chips'}.`);
+      return this._explain({action: "raise", amount: Math.max(state.min_raise_to, Math.min(total, target))}, reason);
+    }
+
+    _all_in_call(state) {
+      const stack = state.stacks.my_bot, cost = Math.min(stack, state.amount_to_call);
+      if (!cost) return null;
+      const contributions = get(state, "street_contributions", {});
+      const active = get(state, "active_players", Object.keys(state.stacks));
+      let raiser = get(state, "last_raiser");
+      // Lists/dicts are unhashable in Python, causing the wrapper's fallback.
+      if (raiser !== null && typeof raiser === "object") throw new Error("Unhashable last_raiser");
+      if (!own(state.stacks, raiser) || raiser === "my_bot") {
+        raiser = null;
+        for (const name of active) {
+          if (name !== "my_bot" && (raiser === null || get(contributions, name, 0) > get(contributions, raiser, 0))) raiser = name;
+        }
+      }
+      if (raiser === null) return null;
+      const shoverStack = state.stacks[raiser];
+      if (shoverStack && !truth(get(state, "opponent_all_in", false)) && cost < stack) return null;
+      const depth = (shoverStack + get(contributions, raiser, 0)) / state.blinds.big;
+      const index = depth <= C.SHOVER_VERY_SHORT_BB ? 4 : depth <= C.SHOVER_SHORT_BB ? 3 : depth <= C.SHOVER_MEDIUM_BB ? 2 : 1;
+      const features = preflopFeatures(state.hole_cards);
+      let equity = features.equity[index];
+      const callers = active.filter(name => name !== "my_bot" && name !== raiser && state.stacks[name] === 0 && get(contributions, name, 0) > 0).length;
+      if (callers) equity **= 1 + C.MULTIWAY_EQUITY_EXPONENT * callers;
+      const fraction = cost / stack;
+      const premium = fraction >= C.BUST_RISK_FRACTION ? C.BUST_RISK_PREMIUM :
+        fraction >= C.CRIPPLE_RISK_FRACTION ? C.CRIPPLE_RISK_PREMIUM : C.COVERED_RISK_PREMIUM;
+      const totals = get(state, "total_contributions", contributions), cap = get(totals, "my_bot", 0) + cost;
+      const pot = truth(totals) ? sum(Object.values(totals).map(chips => Math.min(chips, cap))) : state.pot;
+      const threshold = cost / (pot + cost) + premium;
+      const call = equity >= threshold && has(state.legal_actions, "call");
+      return this._explain(call ? "call" : safeFor(state),
+        call ? 'The chance of winning against a likely all-in range clears the price to call, plus a cushion for risking my stack.' :
+          'The all-in price is too high for my estimated chance of winning, including the risk to my stack.');
+    }
+
+    _postflop(state) {
+      let [level, equity] = strength(state);
+      const legal = state.legal_actions, safe = safeFor(state), stack = state.stacks.my_bot;
+      const cost = Math.min(stack, state.amount_to_call), pot = state.pot;
+      const active = get(state, "active_players", []);
+      const opponents = Math.max(1, active.filter(name => name !== "my_bot").length);
+      equity **= 1 + C.POST_MULTIWAY_PENALTY * (opponents - 1);
+      const invested = get(get(state, "total_contributions", get(state, "street_contributions", {})), "my_bot", 0);
+      const starting = stack + invested, committed = invested >= C.POST_COMMITTED_FRACTION * starting;
+      const weakBudget = Math.max(0, Math.trunc(starting * C.POST_MAX_WEAK_INVESTMENT) - invested);
+      const description = ["no made hand", "a draw", "a medium-strength hand", "a strong hand", "a very strong hand"][level];
+      const context = `With ${description}:`;
+      if (cost) {
+        if (level < 3 && !committed && cost > weakBudget) return this._explain(safe,
+          `${context} calling would commit over a third of my starting stack without enough strength.`);
+        const totals = get(state, "total_contributions", {}), cap = invested + cost;
+        const eligiblePot = truth(totals) ? sum(Object.values(totals).map(chips => Math.min(chips, cap))) : pot;
+        const threshold = cost / (eligiblePot + cost) + C.POST_CALL_MARGIN;
+        if (equity < threshold) return this._explain(safe,
+          `${context} the price to continue is too high for my estimated chance of winning.`);
+        if (level < 3 || !has(legal, "raise")) return this._explain(has(legal, "call") ? "call" : safe,
+          `${context} ${has(legal, "call") ? 'the pot offers a good enough price to call' : 'there is no available call'}.`);
+      }
+      if (!has(legal, "raise")) return this._explain(safe, `${context} there is no available raise.`);
+      let fraction;
+      if (level >= 3) fraction = level === 4 ? C.POST_VERY_STRONG_BET : C.POST_STRONG_BET;
+      else if (level === 1 && !cost && opponents <= C.POST_DRAW_MAX_OPPONENTS) {
+        const roll = this._rng.random();
+        if (roll >= C.POST_DRAW_BET_FREQUENCY) return this._explain(safe,
+          `${context} I sometimes bet draws, but this time I’m taking the free card.`);
+        fraction = C.POST_DRAW_BET;
+      } else return this._explain(safe,
+        `${context} keep the pot small instead of forcing a bet.`);
+      const street = state.max_raise_to - stack;
+      let target = Math.max(state.min_raise_to, street + cost + Math.trunc(pot * fraction));
+      target = Math.min(state.max_raise_to, target);
+      if (level < 3 && !committed && target - street > weakBudget) return this._explain(safe,
+        `${context} even the smallest bet risks too much of my stack, so check.`);
+      return this._explain({action: "raise", amount: target}, `${context} ` +
+        (level >= 3 ? `bet about ${Math.round(fraction * 100)}% of the pot for value, adjusted for the call and legal limits.` :
+          'mix in a small bet with a chance to improve on the next card.'));
+    }
+  }
+
+  globalThis.PokerBot = {
+    Bot, score, strength, category, compareScores, preflopFeatures, PythonRandom,
+    safeAction, boundedState, validCards, handRange,
+    EQUITY, RANKED_HANDS, POSITION_OPEN, SHOVE, CALL, constants: C,
+    CARD_NAMES,
+  };
+})();
+
+
+/* Heads-up no-limit Hold'em. Load bot.js before a showdown; no DOM or imports.
+ * Public cards are rank+suit strings. Raises are TOTAL street contributions.
+ * stateFor(seat) is a detached, seat-relative Python-compatible bot state.
+ */
+(function (root) {
+  'use strict';
+
+  const STREETS = ['preflop', 'flop', 'turn', 'river'];
+  const label = seat => seat === 0 ? 'You' : 'Bot';
+  const compare = (a, b) => {
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+      const difference = (a[i] || 0) - (b[i] || 0);
+      if (difference) return Math.sign(difference);
+    }
+    return 0;
+  };
+
+  class PokerGame {
+    constructor({ rng = Math.random } = {}) {
+      if (typeof rng !== 'function') throw new TypeError('rng must be a function');
+      this.rng = rng;
+      this.stacks = [2000, 2000];
+      this.button = 0;
+      this.handNumber = 0;
+      this.handOver = true;
+      this.gameOver = false;
+      this.winner = null;
+      this.tie = false;
+      this.lastResult = '';
+      this.resultDetails = null;
+      this._history = [];
+      this.newHand();
+    }
+
+    newHand() {
+      if (this.gameOver) throw new Error('The match is over');
+      if (!this.handOver) throw new Error('The current hand is still in progress');
+      // Shuffle before changing any hand state, including when rng is invalid.
+      const deck = [];
+      for (const rank of '23456789TJQKA') {
+        for (const suit of 'cdhs') deck.push(rank + suit);
+      }
+      for (let i = deck.length - 1; i > 0; i--) {
+        const random = this.rng();
+        if (!Number.isFinite(random) || random < 0 || random >= 1) {
+          throw new RangeError('rng must return a number in [0, 1)');
+        }
+        const j = Math.floor(random * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      if (this.handNumber) this.button = 1 - this.button;
+      this.handNumber++;
+      this.bigBlind = Math.min(4000, 20 * 2 ** Math.min(8, Math.floor((this.handNumber - 1) / 10)));
+      this.smallBlind = this.bigBlind / 2;
+      this.hole = [[], []];
+      this.board = [];
+      this.pot = 0;
+      this.street = 'preflop';
+      this.contributions = [0, 0];
+      this.totalContributions = [0, 0];
+      this.startingStacks = this.stacks.slice();
+      this.handOver = false;
+      this.winner = null;
+      this.tie = false;
+      this.lastResult = '';
+      this.resultDetails = null;
+      this.showdown = false;
+      this.logs = [`Hand ${this.handNumber} — blinds ${this.smallBlind}/${this.bigBlind}.`];
+      this._deck = deck;
+      this._burned = [];
+      this._folded = [false, false];
+      this._refunds = [0, 0];
+      this._unopened = true;
+      this._lastRaiser = null;
+      this._actedAt = [null, null];
+      this._lastFullRaise = this.bigBlind;
+      // The big blind is clockwise from the button and receives the first card.
+      for (let round = 0; round < 2; round++) {
+        for (const seat of [1 - this.button, this.button]) this.hole[seat].push(this._deck.pop());
+      }
+      for (const [seat, blind] of [[this.button, this.smallBlind], [1 - this.button, this.bigBlind]]) {
+        const paid = this._post(seat, blind);
+        this.logs.push(`${label(seat)} posts ${paid}${this.stacks[seat] === 0 ? ' (all-in)' : ''}.`);
+      }
+      this._currentBet = Math.max(...this.contributions);
+      this._pending = new Set([0, 1].filter(seat => this.stacks[seat] > 0));
+      this._proceed(this.button);
+      return this;
+    }
+
+    stateFor(seat) {
+      this._validateSeat(seat);
+      const other = 1 - seat;
+      const name = index => index === seat ? 'my_bot' : 'opponent';
+      const relative = values => ({ my_bot: values[seat], opponent: values[other] });
+      const cost = Math.max(0, this._currentBet - this.contributions[seat]);
+      const maximum = this.contributions[seat] + this.stacks[seat];
+      const minimum = Math.min(this._currentBet + this._lastFullRaise, maximum);
+      const legal = [];
+      if (!this.handOver && this.actor === seat) {
+        legal.push('fold', cost === 0 ? 'check' : 'call');
+        const reopened = this._actedAt[seat] === null ||
+          this._currentBet - this._actedAt[seat] >= this._lastFullRaise;
+        if (reopened && maximum > this._currentBet && this.stacks[other] > 0) legal.push('raise');
+      }
+      return {
+        hole_cards: this.hole[seat].slice(),
+        board: this.board.slice(),
+        pot: this.pot,
+        stacks: relative(this.stacks),
+        blinds: { small: this.smallBlind, big: this.bigBlind },
+        amount_to_call: cost,
+        legal_actions: legal,
+        min_raise_to: minimum,
+        max_raise_to: maximum,
+        hand_number: this.handNumber,
+        position: seat === this.button ? 'small_blind' : 'big_blind',
+        folded_to_me: this.street === 'preflop' && this._unopened,
+        players_remaining: 2,
+        active_players: [0, 1].filter(index => !this._folded[index]).map(name),
+        street_contributions: relative(this.contributions),
+        total_contributions: relative(this.totalContributions),
+        starting_stacks: relative(this.startingStacks),
+        self_name: 'my_bot',
+        players_left_to_act: [...this._pending].filter(index => index !== seat).length,
+        last_raiser: this._lastRaiser === null ? null : name(this._lastRaiser),
+        opponent_all_in: this.stacks[other] === 0 && !this._folded[other],
+        action_history: this._history.map(entry => [entry[0], name(entry[1]), ...entry.slice(2)]),
+        payouts: [1, 0],
+        max_hands: null,
+        street: this.street
+      };
+    }
+
+    act(seat, response) {
+      this._validateSeat(seat);
+      if (this.handOver) throw new Error('The hand is over');
+      if (seat !== this.actor) throw new Error('It is not this seat\'s turn');
+      const action = typeof response === 'string' ? response : response && response.action;
+      const state = this.stateFor(seat);
+      if (!state.legal_actions.includes(action)) throw new Error(`Illegal action: ${String(action)}`);
+      const amount = response && typeof response === 'object' ? response.amount : undefined;
+      if (action === 'raise' && (!Number.isSafeInteger(amount) ||
+          amount < state.min_raise_to || amount > state.max_raise_to)) {
+        throw new RangeError(`Raise total must be an integer from ${state.min_raise_to} to ${state.max_raise_to}`);
+      }
+      // All validation precedes mutation, including history and log updates.
+      const previousBet = this._currentBet;
+      if (this.street === 'preflop') {
+        this._history.push([this.handNumber, seat, action,
+          action === 'raise' && amount === state.max_raise_to, previousBet > this.bigBlind]);
+        this._history = this._history.slice(-96);
+        if (action !== 'fold') this._unopened = false;
+      }
+      this._pending.delete(seat);
+      if (action === 'fold') {
+        this._folded[seat] = true;
+        this.logs.push(`${label(seat)} folds.`);
+        this._refundUncalled();
+        this._award(1 - seat, 'fold', null);
+        return this;
+      }
+      if (action === 'raise') {
+        this._post(seat, amount - this.contributions[seat]);
+        this._currentBet = amount;
+        if (amount - previousBet >= this._lastFullRaise) this._lastFullRaise = amount - previousBet;
+        this._lastRaiser = seat;
+        this._pending = new Set([1 - seat].filter(index => this.stacks[index] > 0));
+        this.logs.push(`${label(seat)} ${previousBet === 0 ? 'bets' : 'raises to'} ${amount}${this.stacks[seat] === 0 ? ' (all-in)' : ''}.`);
+      } else if (action === 'call') {
+        const paid = this._post(seat, state.amount_to_call);
+        this.logs.push(`${label(seat)} calls ${paid}${this.stacks[seat] === 0 ? ' (all-in)' : ''}.`);
+      } else {
+        this.logs.push(`${label(seat)} checks.`);
+      }
+      this._actedAt[seat] = this._currentBet;
+      this._proceed(1 - seat);
+      return this;
+    }
+
+    _validateSeat(seat) {
+      if (seat !== 0 && seat !== 1) throw new RangeError('Seat must be 0 or 1');
+    }
+
+    _post(seat, amount) {
+      const paid = Math.min(amount, this.stacks[seat]);
+      this.stacks[seat] -= paid;
+      this.contributions[seat] += paid;
+      this.totalContributions[seat] += paid;
+      this.pot += paid;
+      return paid;
+    }
+
+    _proceed(next) {
+      const able = [0, 1].filter(seat => this.stacks[seat] > 0);
+      if (able.length < 2) {
+        // A lone player only gets a decision when facing an outstanding bet.
+        const seat = able[0];
+        if (seat !== undefined && this.contributions[seat] < this.contributions[1 - seat]) {
+          this._pending = new Set([seat]);
+          this.actor = seat;
+          return;
+        }
+        this._refundUncalled();
+        while (this.board.length < 5) this._dealStreet();
+        this._showdown();
+        return;
+      }
+      if (this._pending.size) {
+        this.actor = this._pending.has(next) ? next : 1 - next;
+        return;
+      }
+      if (this.street === 'river') {
+        this._showdown();
+      } else {
+        this._dealStreet();
+        this._pending = new Set([0, 1]);
+        this.actor = 1 - this.button;
+      }
+    }
+
+    _dealStreet() {
+      this.street = STREETS[STREETS.indexOf(this.street) + 1];
+      this.contributions = [0, 0];
+      this._currentBet = 0;
+      this._lastFullRaise = this.bigBlind;
+      this._actedAt = [null, null];
+      this._burned.push(this._deck.pop());
+      const count = this.street === 'flop' ? 3 : 1;
+      for (let i = 0; i < count; i++) this.board.push(this._deck.pop());
+      // Even public board cards are omitted from the log until showdown.
+      this.logs.push(`${this.street[0].toUpperCase() + this.street.slice(1)}.`);
+    }
+
+    _refundUncalled() {
+      const difference = this.totalContributions[0] - this.totalContributions[1];
+      this._refunds = [0, 0];
+      if (!difference) return;
+      const seat = difference > 0 ? 0 : 1;
+      const amount = Math.abs(difference);
+      this.stacks[seat] += amount;
+      this.contributions[seat] -= amount;
+      this.totalContributions[seat] -= amount;
+      this.pot -= amount;
+      this._refunds[seat] = amount;
+      this.logs.push(`${label(seat)} receives ${amount} uncalled chips back.`);
+    }
+
+    _showdown() {
+      if (!root.PokerBot || typeof root.PokerBot.score !== 'function') {
+        throw new Error('Load PokerBot.score before playing a showdown');
+      }
+      const scores = this.hole.map(cards => root.PokerBot.score(cards.concat(this.board)));
+      if (scores.some(score => !Array.isArray(score) || !score.length || score.some(n => !Number.isFinite(n)))) {
+        throw new TypeError('PokerBot.score must return a numeric score array');
+      }
+      const result = compare(scores[0], scores[1]);
+      this.showdown = true;
+      this.logs.push(`Showdown — board ${this.board.join(' ')}; You: ${this.hole[0].join(' ')}; Bot: ${this.hole[1].join(' ')}.`);
+      this._award(result > 0 ? 0 : result < 0 ? 1 : null, 'showdown', scores);
+    }
+
+    _payouts(pot, winner) {
+      if (winner !== null) return winner === 0 ? [pot, 0] : [0, pot];
+      const payouts = [Math.floor(pot / 2), Math.floor(pot / 2)];
+      payouts[1 - this.button] += pot % 2; // First seat clockwise from button.
+      return payouts;
+    }
+
+    _award(winner, reason, scores) {
+      const pot = this.pot;
+      const payouts = this._payouts(pot, winner);
+      for (let seat = 0; seat < 2; seat++) this.stacks[seat] += payouts[seat];
+      this.winner = winner;
+      this.tie = winner === null;
+      this.handOver = true;
+      this.gameOver = this.stacks.some(stack => stack === 0);
+      this.actor = null;
+      this._pending.clear();
+      this.pot = 0;
+      this.resultDetails = {
+        handNumber: this.handNumber, reason, winner, tie: this.tie, pot,
+        payouts, refunds: (this._refunds || [0, 0]).slice(),
+        scores: scores && scores.map(score => score.slice())
+      };
+      this.lastResult = this.tie ? `Split pot: ${payouts[0]} / ${payouts[1]}.` : `${label(winner)} wins ${pot}.`;
+      this.logs.push(this.lastResult);
+      if (this.gameOver) this.logs.push(`${label(this.stacks[0] > 0 ? 0 : 1)} wins the match.`);
+    }
+  }
+
+  root.PokerGame = PokerGame;
+})(globalThis);
+
+
+/* Browser presentation. The engine and strategy also run without a DOM. */
+(() => {
+  'use strict';
+  if (typeof document === 'undefined') return;
+  const $ = id => document.getElementById(id);
+  const format = n => n.toLocaleString('en-US');
+  const symbols = {c:'♣',d:'♦',h:'♥',s:'♠'};
+  const suitNames = {c:'clubs',d:'diamonds',h:'hearts',s:'spades'};
+  const rankNames = {T:'10',J:'Jack',Q:'Queen',K:'King',A:'Ace'};
+  const BOT_DELAY_MS = 600;
+  let game, bot, timer = null, generation = 0, reason, botAction;
+
+  function cards(element, values, count, hidden = false) {
+    element.replaceChildren();
+    for (let i=0;i<count;i++) {
+      const card = document.createElement('span');
+      const value = values[i];
+      card.className = 'card';
+      if (hidden) {
+        card.classList.add('back');
+        card.setAttribute('aria-label','Face-down card');
+      } else if (!value) {
+        card.classList.add('empty');
+        card.setAttribute('aria-label','Card not dealt yet');
+      } else {
+        if ('dh'.includes(value[1])) card.classList.add('red');
+        const rank = document.createElement('span');
+        rank.textContent = value[0] === 'T' ? '10' : value[0];
+        const suit = document.createElement('span');
+        suit.className = 'suit'; suit.textContent = symbols[value[1]];
+        card.append(rank,suit);
+        card.setAttribute('aria-label',`${rankNames[value[0]] || value[0]} of ${suitNames[value[1]]}`);
+      }
+      element.append(card);
+    }
+  }
+  function setRaise(value) {
+    const slider = $('raise-slider');
+    slider.value = Math.max(Number(slider.min),Math.min(Number(slider.max),Math.trunc(value)));
+    $('raise-value').textContent = format(Number(slider.value));
+    $('raise').textContent = `Raise ${format(Number(slider.value))}`;
+  }
+  function showError(error) {
+    clearTimeout(timer); timer = null;
+    console.error(error);
+    $('error').hidden = false;
+    $('error').textContent = 'The hand could not continue. Use Play again to start a fresh match.';
+    $('play-controls').hidden = true; $('next-controls').hidden = false;
+    $('next-hand').textContent = 'Play again'; $('next-hand').dataset.restart = 'true';
+    $('turn').textContent = 'Please start a new match';
+  }
+  function render() {
+    $('hand-number').textContent = game.handNumber;
+    $('blinds').textContent = `${format(game.smallBlind)} / ${format(game.bigBlind)}`;
+    $('pot').textContent = format(game.pot);
+    for (const [seat,label] of [[0,'human'],[1,'bot']]) {
+      $(label+'-stack').textContent = format(game.stacks[seat]);
+      $(label+'-dealer').hidden = game.button !== seat;
+      $(label+'-seat').classList.toggle('active',!game.handOver && game.actor===seat);
+      $(label+'-status').textContent = !game.handOver && game.stacks[seat]===0 ? 'All-in' : '';
+    }
+    cards($('human-cards'),game.hole[0],2);
+    cards($('bot-cards'),game.hole[1],2,!(game.handOver && game.board.length===5 && game.showdown));
+    cards($('board'),game.board,5);
+    $('result').textContent = game.handOver ? game.lastResult : '';
+    $('reason').textContent = reason;
+    $('bot-action').textContent = botAction;
+    const log=$('log');
+    log.replaceChildren(...game.logs.slice(-70).map(text=>{
+      const item=document.createElement('li'); item.textContent=text; return item;
+    }));
+    log.scrollTop = log.scrollHeight;
+    $('play-controls').hidden = game.handOver;
+    $('next-controls').hidden = !game.handOver;
+    $('next-hand').dataset.restart = game.gameOver ? 'true' : 'false';
+    $('next-hand').textContent = game.gameOver ? 'Play again' : 'Next hand';
+    $('next-message').textContent = game.gameOver ? (game.stacks[0]===4000 ? 'You took all 4,000 chips. Well played!' : 'The bot takes this match. Try another?') : 'Ready for the next hand?';
+    $('turn').textContent = game.gameOver ? (game.stacks[0]===4000 ? 'You win the match' : 'Bot wins the match') : game.handOver ? 'Hand complete' : game.actor===1 ? 'Bot is thinking…' : 'Your move';
+    $('blind-hint').textContent = `Blinds rise in ${10-(game.handNumber-1)%10} hand${10-(game.handNumber-1)%10===1?'':'s'}`;
+    const yourTurn = !game.handOver && game.actor===0;
+    const state=yourTurn ? game.stateFor(0) : null;
+    for(const action of ['fold','check','call','raise']) $(action).disabled = !state || !state.legal_actions.includes(action);
+    $('call').textContent = state && state.amount_to_call ? `Call ${format(Math.min(game.stacks[0],state.amount_to_call))}` : 'Call';
+    const canRaise = state && state.legal_actions.includes('raise');
+    for (const id of ['raise-slider','half-pot','full-pot','all-in']) $(id).disabled = !canRaise;
+    if(canRaise) {
+      $('raise-slider').min=state.min_raise_to;
+      $('raise-slider').max=state.max_raise_to;
+      setRaise(state.min_raise_to);
+    } else { $('raise-value').textContent='—'; $('raise').textContent='Raise'; }
+  }
+  function scheduleBot() {
+    if(timer!==null || game.handOver || game.actor!==1) return;
+    const turnGeneration=generation;
+    timer=setTimeout(()=>{
+      timer=null;
+      if(turnGeneration!==generation || game.handOver || game.actor!==1) return;
+      try {
+        const state=game.stateFor(1);
+        const action=bot.getAction(state);
+        reason=bot.reason || 'Choosing a legal action based on hand strength, stack depth, and the price to continue.';
+        botAction=typeof action==='string' ? `Bot ${action==='call'?'calls':action==='check'?'checks':'folds'}` : `Bot raises to ${format(action.amount)}`;
+        game.act(1,action);
+        render(); scheduleBot();
+      } catch(error) {showError(error);}
+    },BOT_DELAY_MS);
+  }
+  function act(action) {
+    if(game.handOver || game.actor!==0) return;
+    try {game.act(0,action);render();scheduleBot();} catch(error) {showError(error);}
+  }
+  function start() {
+    generation++;
+    clearTimeout(timer);timer=null;
+    game=new PokerGame();bot=new PokerBot.Bot();
+    reason='Take your seat. After each move, I’ll explain the bot’s decision here.';
+    botAction='Waiting for the first move';
+    $('error').hidden=true;
+    render();scheduleBot();
+  }
+  for(const action of ['fold','check','call']) $(action).addEventListener('click',()=>act(action));
+  $('raise').addEventListener('click',()=>act({action:'raise',amount:Number($('raise-slider').value)}));
+  $('raise-slider').addEventListener('input',event=>setRaise(Number(event.target.value)));
+  for(const [id,fraction] of [['half-pot',.5],['full-pot',1]]) $(id).addEventListener('click',()=>{
+    if(game.actor!==0 || game.handOver) return;
+    const state=game.stateFor(0),street=state.max_raise_to-game.stacks[0];
+    setRaise(street+state.amount_to_call+Math.floor((game.pot+state.amount_to_call)*fraction));
+  });
+  $('all-in').addEventListener('click',()=>setRaise(Number($('raise-slider').max)));
+  $('next-hand').addEventListener('click',()=>{
+    if($('next-hand').dataset.restart==='true') return start();
+    if(!game.handOver) return;
+    try {game.newHand();render();scheduleBot();} catch(error) {showError(error);}
+  });
+  start();
+})();
+
+</script>
+</body>
+</html>

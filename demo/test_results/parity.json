@@ -1,0 +1,117 @@
+{
+  "count": 500,
+  "coverage": {
+    "costs": {
+      "all_in_call": 42,
+      "free": 265,
+      "priced_call": 193
+    },
+    "depths": {
+      "15-40bb": 145,
+      "<15bb": 91,
+      "<5bb": 91,
+      ">40bb": 173
+    },
+    "flags": {
+      "opponent_all_in": 83,
+      "random_draw_decisions": 63,
+      "short_raise_only": 25,
+      "unopened": 28
+    },
+    "javascript_actions": {
+      "call": 54,
+      "check": 191,
+      "fold": 132,
+      "raise": 123
+    },
+    "players": {
+      "2": 144,
+      "3": 59,
+      "4": 79,
+      "6": 109,
+      "8": 109
+    },
+    "positions": {
+      "big_blind": 194,
+      "button": 71,
+      "cutoff": 71,
+      "early": 69,
+      "small_blind": 95
+    },
+    "python_actions": {
+      "call": 54,
+      "check": 191,
+      "fold": 132,
+      "raise": 123
+    },
+    "sources": {
+      "air": 3,
+      "board_flush": 3,
+      "board_straight": 3,
+      "combo_draw": 10,
+      "flush": 4,
+      "flush_draw": 10,
+      "full_house": 4,
+      "gutshot": 10,
+      "javascript_engine": 50,
+      "low_flush_four_suits": 3,
+      "open_straight_draw": 10,
+      "overpair_paired_board": 3,
+      "python_engine": 350,
+      "quads": 4,
+      "straight_flush": 4,
+      "three_pairs": 3,
+      "top_pair": 3,
+      "trips": 3,
+      "turn_flush_draw": 10,
+      "two_pair": 3,
+      "two_trips": 3,
+      "wheel": 4
+    },
+    "streets": {
+      "flop": 169,
+      "preflop": 108,
+      "river": 113,
+      "turn": 110
+    },
+    "strengths": {
+      "0": 93,
+      "1": 104,
+      "2": 89,
+      "3": 68,
+      "4": 38
+    }
+  },
+  "engine_source": {
+    "artifact": "index.html",
+    "artifact_sha256": "99232c48b6d8dba07434917a75bd5366da8188a75a49441d91264b0eec46da44",
+    "code_sha256": "26780e5db338b2f912e9ab4158fb60bb45e5a35754bb6e018fa1b2ad445e7de4",
+    "document_undefined": true,
+    "final_artifact": true
+  },
+  "engine_unavailable": null,
+  "illegal": [],
+  "illegal_count": 0,
+  "match_rate": 1.0,
+  "matches": 500,
+  "mismatch_count": 0,
+  "mismatches": [],
+  "omitted_mismatches": 0,
+  "passed": true,
+  "required_rate": 0.95,
+  "scores": {
+    "count": 300,
+    "mismatch_count": 0,
+    "mismatches": []
+  },
+  "seed": 7107,
+  "source": {
+    "artifact": "index.html",
+    "artifact_sha256": "99232c48b6d8dba07434917a75bd5366da8188a75a49441d91264b0eec46da44",
+    "code_sha256": "26780e5db338b2f912e9ab4158fb60bb45e5a35754bb6e018fa1b2ad445e7de4",
+    "document_undefined": true,
+    "final_artifact": true
+  },
+  "states_sha256": "12003402ddee6e847be30be24004fe2712b69d8b3d2850e139b2a2c924d44b08",
+  "valid_count": 500
+}

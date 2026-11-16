@@ -1,5 +1,7 @@
 I built a tournament poker bot in a few days with no prior coding background, using AI coding tools. I translated poker strategy into Python, built a simulator, and tested improvements against a clear goal: more tournament points with reliable decisions in under one millisecond.
 
+**[Play the bot in your browser →](https://play-my-poker-bot.vercel.app)** · [Demo tests and deployment guide](demo/README.md)
+
 ### Strategy in plain English
 
 The bot plays cautiously with a deep stack and goes all-in or folds when short-stacked. It plays more hands near the button, weighs all-in calls against likely opponent hands, and keeps pots small without a strong hand. It uses only Python’s standard library.

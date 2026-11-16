@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "matches": 2000,
+  "policies": [
+    "passive",
+    "random",
+    "push",
+    "fold",
+    "small_raise",
+    "bot"
+  ],
+  "decisions": 163457,
+  "hands": 59756,
+  "showdowns": 12171,
+  "ties": 437,
+  "maxHands": 61,
+  "invariantChecks": 223216,
+  "illegalActions": 0,
+  "errors": 0,
+  "wins": [
+    578,
+    1422
+  ],
+  "artifact_sha256": "99232c48b6d8dba07434917a75bd5366da8188a75a49441d91264b0eec46da44"
+}
