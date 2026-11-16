@@ -19,7 +19,9 @@ Double-click `index.html`, or open it in a browser. Everything it needs—styles
 | Browser games | Six complete matches at desktop, 390px, and 320px widths |
 | Existing Python regression suite | 70 passed |
 
-Browser checks cover the 600ms bot delay, raise controls, chip totals, hidden cards, showdown reveals, replay, and horizontal overflow. Reports are in [`test_results/`](test_results/). The comparison covers actual simulator states, browser-engine states, all streets and stack depths, and targeted draw decisions. The JavaScript implementation reproduces Python’s seeded random stream as well as its equity lookup data. The explanations describe the selected strategy branch without naming the bot’s hidden cards.
+Browser checks cover the 600ms bot delay, raise controls, displayed bets and chip totals, hidden cards, winning-card highlights, hand results, replay, session scores, keyboard shortcuts, and horizontal overflow. The desktop check uses 1440×900 with no page scrolling; phone controls stay pinned at 390px and 320px widths. Reports are in [`test_results/`](test_results/). The comparison covers actual simulator states, browser-engine states, all streets and stack depths, and targeted draw decisions. The JavaScript implementation reproduces Python’s seeded random stream as well as its equity lookup data. The explanations describe the selected strategy branch without naming the bot’s hidden cards.
+
+Use **F** to fold, **C** to check/call, and **R** to raise to the selected amount on desktop. Shortcuts are disabled while editing the slider or when it is not your turn. The scoreboard lasts until the page is closed or reloaded. At showdown, gold outlines mark a winning five-card hand; in a split pot, both players’ best five are highlighted. Current bets appear in front of each seat, separate from the collected pot. These are presentation features; the strategy and game engine are unchanged by the visual polish.
 
 ## Edit and rebuild
 
@@ -30,10 +32,11 @@ python3 demo/generate_bot_data.py --check
 python3 demo/build.py
 python3 demo/test_parity.py
 node demo/test_engine.js
+node demo/test_presentation.js
 python3 -m unittest discover -q
 ```
 
-Edit `template.html` for layout/styles, `ui.js` for controls, `engine.js` for game rules, and `bot.js` for the ported strategy. `build.py` combines them into the deployable `index.html`. If Python strategy constants or equity data change, run `python3 demo/generate_bot_data.py` before rebuilding; strategy logic changes must also be ported manually.
+Edit `template.html` for markup, `style.css` for styling, `ui.js` for controls and animations, and `presentation.js` for hand descriptions and highlights. `engine.js` contains the game rules and `bot.js` the ported strategy. `build.py` combines them into the deployable `index.html`. If Python strategy constants or equity data change, run `python3 demo/generate_bot_data.py` before rebuilding; strategy logic changes must also be ported manually.
 
 The optional browser test uses Playwright and an installed Google Chrome. Install its test dependency from the repository folder, then run:
 
