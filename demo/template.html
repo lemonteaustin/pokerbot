@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101716">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23101716'/%3E%3Ctext x='16' y='25' text-anchor='middle' font-size='28' fill='%23b9edb0'%3E%E2%99%A0%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#111216">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23111216'/%3E%3Ctext x='16' y='25' text-anchor='middle' font-size='28' fill='%23d6b77a'%3E%E2%99%A0%3C/text%3E%3C/svg%3E">
 <meta name="description" content="Play heads-up Texas Hold’em against Austin’s poker bot. Free play chips, no account needed. See the strategy behind every move.">
 <title>Play My Poker Bot</title>
 <style>
@@ -14,8 +14,8 @@
 <body>
 <div class="shell">
   <header class="header">
-    <div class="brand"><div class="brand-mark" aria-hidden="true">♠</div><div><div class="eyebrow">Human intuition. Bot strategy.</div><h1>Play My Poker Bot</h1></div></div>
-    <div class="header-right"><div class="scoreboard" id="scoreboard" aria-label="Games won" aria-live="polite">You 0 · Bot 0</div><div class="badge">Play chips only</div></div>
+    <div class="brand"><div class="brand-mark" aria-hidden="true">♠</div><div><h1>Play My Poker Bot</h1></div></div>
+    <div class="header-right"><div class="scoreboard" id="scoreboard" aria-label="Games won" aria-live="polite">You 0 · Bot 0</div></div>
   </header>
   <main class="layout">
     <section class="game" aria-label="Poker game">
@@ -43,7 +43,7 @@
       <section class="controls" aria-label="Your actions">
         <div class="turn-line"><span class="turn-label" id="turn" role="status">Your move</span><span class="hint" id="blind-hint">Blinds double every 10 hands</span></div>
         <div id="play-controls">
-          <div class="actions"><button id="fold" aria-keyshortcuts="F" title="Fold (F)">Fold <kbd aria-hidden="true">F</kbd></button><button id="check" aria-keyshortcuts="C" title="Check or call (C)">Check</button><button id="call" aria-keyshortcuts="C" title="Check or call (C)">Call</button><button id="raise" class="primary" aria-keyshortcuts="R" title="Raise to selected amount (R)">Raise to 40</button></div>
+          <div class="actions"><button id="fold" aria-keyshortcuts="F" title="Fold (F)">Fold <kbd aria-hidden="true">F</kbd></button><button id="check" aria-keyshortcuts="C" title="Check or call (C)">Check <kbd aria-hidden="true">C</kbd></button><button id="call" aria-keyshortcuts="C" title="Check or call (C)">Call</button><button id="raise" class="primary" aria-keyshortcuts="R" title="Raise to selected amount (R)">Raise to 40</button></div>
           <div class="sizing"><div class="range-wrap"><div class="range-label"><label for="raise-slider">Raise to</label><output id="raise-value" for="raise-slider">40</output></div><input id="raise-slider" type="range" min="40" max="2000" step="1" value="40"></div><div class="shortcuts"><button id="half-pot">½ pot</button><button id="full-pot">Pot</button><button id="all-in">All-in</button></div></div>
         </div>
         <div id="next-controls" class="next" hidden><p id="next-message">Ready for the next hand?</p><button id="next-hand" class="primary">Next hand</button></div>
@@ -51,12 +51,12 @@
     </section>
     <aside class="sidebar">
       <section class="panel"><div class="eyebrow">A look inside the strategy</div><h2><span class="thinking-icon" aria-hidden="true">✧</span>How the bot thinks</h2><p class="reason" id="reason" aria-live="polite">Take your seat. After each move, I’ll explain the bot’s decision here.</p><div class="action-pill" id="bot-action">Waiting for the first move</div></section>
-      <section class="panel rules-panel"><h2>The table rules</h2><p class="notes"><strong>2,000 chips each.</strong> Blinds start at 10 / 20 and double every 10 hands. Take all 4,000 chips to win. No accounts, no real money.</p></section>
       <section class="panel log-panel"><h2>Action log</h2><ol id="log" class="log" aria-label="Action history"></ol></section>
-      <details class="panel help-panel"><summary>Rules &amp; keyboard shortcuts</summary><p class="notes">Make the best five-card hand from your cards and the board. The small blind acts first before the flop; the big blind acts first after it. On desktop: <strong>F</strong> folds, <strong>C</strong> checks or calls, and <strong>R</strong> raises to the slider amount.</p></details>
+
     </aside>
   </main>
-  <footer><span>Built by Austin Le Monte · <a href="https://github.com/lemonteaustin/pokerbot" target="_blank" rel="noopener noreferrer">View on GitHub</a></span><span>Just you, the bot, and 4,000 play chips.</span></footer>
+      <details class="panel help-panel"><summary>Rules &amp; keyboard shortcuts</summary><p class="notes"><strong>The table rules:</strong> 2,000 chips each. Blinds start at 10 / 20 and double every 10 hands. Take all 4,000 chips to win.</p><p class="notes">Make the best five-card hand from your cards and the board. The small blind acts first before the flop; the big blind acts first after it. On desktop: <strong>F</strong> folds, <strong>C</strong> checks or calls, and <strong>R</strong> raises to the slider amount.</p></details>
+  <footer><span>Built by Austin Le Monte · <a href="https://github.com/lemonteaustin/pokerbot" target="_blank" rel="noopener noreferrer">View on GitHub</a> · Play chips only, no real money.</span></footer>
 </div>
 <dialog id="match-dialog" class="match-dialog" aria-labelledby="match-title" aria-describedby="match-summary">
   <div class="match-symbol" aria-hidden="true">♠</div><div class="eyebrow">Match complete</div>

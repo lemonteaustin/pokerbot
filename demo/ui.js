@@ -49,11 +49,15 @@
       card.classList.toggle('winning',!hidden && winning.has(value));
     }
   }
+  function buttonLabel(id,text,key) {
+    const badge=document.createElement('kbd');badge.textContent=key;badge.setAttribute('aria-hidden','true');
+    $(id).replaceChildren(document.createTextNode(text+' '),badge);
+  }
   function setRaise(value) {
     const slider = $('raise-slider');
     slider.value = Math.max(Number(slider.min),Math.min(Number(slider.max),Math.trunc(value)));
     $('raise-value').textContent = format(Number(slider.value));
-    $('raise').textContent = `Raise to ${format(Number(slider.value))}`;
+    buttonLabel('raise',`Raise to ${format(Number(slider.value))}`,'R');
   }
   function showError(error) {
     clearTimeout(timer); timer = null;
@@ -109,14 +113,14 @@
     const yourTurn = !game.handOver && game.actor===0;
     const state=yourTurn ? game.stateFor(0) : null;
     for(const action of ['fold','check','call','raise']) $(action).disabled = !state || !state.legal_actions.includes(action);
-    $('call').textContent = state && state.amount_to_call ? `Call ${format(Math.min(game.stacks[0],state.amount_to_call))}` : 'Call';
+    buttonLabel('call',state && state.amount_to_call ? `Call ${format(Math.min(game.stacks[0],state.amount_to_call))}` : 'Call','C');
     const canRaise = state && state.legal_actions.includes('raise');
     for (const id of ['raise-slider','half-pot','full-pot','all-in']) $(id).disabled = !canRaise;
     if(canRaise) {
       $('raise-slider').min=state.min_raise_to;
       $('raise-slider').max=state.max_raise_to;
       setRaise(state.min_raise_to);
-    } else { $('raise-value').textContent='—'; $('raise').textContent='Raise to —'; }
+    } else { $('raise-value').textContent='—'; buttonLabel('raise','Raise to —','R'); }
     if(game.gameOver && !matchRecorded) {
       matchRecorded=true;wins[game.stacks[0]===4000?0:1]++;
       $('match-title').textContent=game.stacks[0]===4000?'You win!':'Bot wins this time';
@@ -162,7 +166,7 @@
         const state=game.stateFor(1);
         const action=bot.getAction(state);
         reason=bot.reason || 'Choosing a legal action based on hand strength, stack depth, and the price to continue.';
-        botAction=typeof action==='string' ? `Bot ${action==='call'?'calls':action==='check'?'checks':'folds'}` : `Bot raises to ${format(action.amount)}`;
+        botAction=typeof action==='string' ? `Bot ${action==='call'?'calls':action==='check'?'checks':'folds'}` : `Bot ${Math.max(...Object.values(state.street_contributions))===0?'bets':'raises to'} ${format(action.amount)}`;
         applyAction(1,action);
         scheduleBot();
       } catch(error) {showError(error);}

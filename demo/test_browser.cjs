@@ -31,7 +31,7 @@ fs.mkdirSync(output,{recursive:true});
       assert.ok(!(await page.locator('body').innerText()).includes('· v7'));
       assert.ok(!(await page.locator('footer').innerText()).includes('AI coding tools'));
       assert.ok((await page.locator('#log').innerText()).includes('You post 10'));
-      assert.equal(await page.locator('#raise').textContent(),'Raise to 40');
+      assert.equal(await page.locator('#raise').textContent(),'Raise to 40 R');
       assert.equal(await page.locator('label[for=raise-slider]').textContent(),'Raise to');
       assert.equal(await page.locator('#bot-bb').textContent(),'99 BB');
       assert.equal(await page.locator('#human-bet-amount').textContent(),'10');

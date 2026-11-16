@@ -101,3 +101,5 @@ npm --cache /tmp/pokerbot-npm-cache exec --yes --package=vercel -- vercel deploy
 ```
 
 See Vercel’s [CLI deployment guide](https://vercel.com/docs/projects/deploy-from-cli) and [deploy command documentation](https://vercel.com/docs/cli/deploy) for its command options.
+
+The charcoal/navy theme embeds Inter Variable in the standalone HTML, with its SIL Open Font License. Font source and license are kept in `fonts/`; no remote font requests are made.
